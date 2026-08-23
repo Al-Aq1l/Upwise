@@ -1,0 +1,30 @@
+{
+  "name": "Upwise — Personal Growth OS",
+  "short_name": "Upwise",
+  "description": "Gamified Personal Growth Operating System for High Performers",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1e1f25",
+  "theme_color": "#1e1f25",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/favicon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/logo-transparent.png",
+      "sizes": "500x500",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
