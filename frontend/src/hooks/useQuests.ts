@@ -18,7 +18,19 @@ export function useQuests(date?: string) {
     queryKey: ["quests", date],
     queryFn: async () => {
       const res = await api.get("/quests", { params: { date } });
+      if (!date) {
+        localStorage.setItem("sl-quests-cache", JSON.stringify(res.data));
+      }
       return res.data;
+    },
+    initialData: () => {
+      if (date) return undefined;
+      try {
+        const cached = localStorage.getItem("sl-quests-cache");
+        return cached ? JSON.parse(cached) : undefined;
+      } catch {
+        return undefined;
+      }
     },
   });
 }

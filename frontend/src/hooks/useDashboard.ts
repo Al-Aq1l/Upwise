@@ -43,11 +43,19 @@ export function useDashboard() {
     queryKey: ["dashboard"],
     queryFn: async () => {
       const res = await api.get("/dashboard");
-      // Sync profile to store
       if (res.data.profile) {
         setProfile(res.data.profile);
       }
+      localStorage.setItem("sl-dashboard-cache", JSON.stringify(res.data));
       return res.data;
+    },
+    initialData: () => {
+      try {
+        const cached = localStorage.getItem("sl-dashboard-cache");
+        return cached ? JSON.parse(cached) : undefined;
+      } catch {
+        return undefined;
+      }
     },
     refetchInterval: 30000,
   });
