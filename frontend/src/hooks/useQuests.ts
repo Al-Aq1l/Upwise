@@ -72,6 +72,18 @@ export function useToggleQuest() {
       const res = await api.patch(`/quests/${id}/toggle`);
       return res.data;
     },
+    onMutate: async (id: number) => {
+      await queryClient.cancelQueries({ queryKey: ["quests"] });
+      queryClient.setQueriesData({ queryKey: ["quests"] }, (old: any) => {
+        if (!old || !old.quests) return old;
+        return {
+          ...old,
+          quests: old.quests.map((q: Quest) =>
+            q.id === id ? { ...q, completed: !q.completed } : q
+          ),
+        };
+      });
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["quests"] });
       queryClient.invalidateQueries({ queryKey: ["dashboard"] });

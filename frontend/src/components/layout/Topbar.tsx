@@ -20,7 +20,7 @@ export default function Topbar() {
   const location = useLocation();
   const logoutMutation = useLogout();
   const themeMutation = useUpdateTheme();
-  const { profile } = useAuthStore();
+  const { profile, setTheme } = useAuthStore();
 
   const title = pageTitles[location.pathname] || "Upwise";
   const today = new Date().toLocaleDateString("id-ID", {
@@ -32,7 +32,8 @@ export default function Topbar() {
 
   const handleThemeToggle = () => {
     const nextTheme = profile?.theme === "dark" ? "light" : "dark";
-    themeMutation.mutate(nextTheme);
+    setTheme(nextTheme); // Instant 0ms visual switch
+    themeMutation.mutate(nextTheme); // Silent background sync
   };
 
   return (

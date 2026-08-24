@@ -26,6 +26,9 @@ export function useUpdateTheme() {
       const res = await api.put("/settings/theme", { theme });
       return res.data;
     },
+    onMutate: (theme) => {
+      setTheme(theme);
+    },
     onSuccess: (data) => {
       setTheme(data.theme);
     },
@@ -40,8 +43,15 @@ export function useUpdateNotifications() {
       const res = await api.put("/settings/notifications", { notifications });
       return res.data;
     },
+    onMutate: (notifications) => {
+      const cached = localStorage.getItem("sl-profile");
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        parsed.notifications = notifications;
+        setProfile(parsed);
+      }
+    },
     onSuccess: (data) => {
-      // Refresh the saved profile with updated notifications
       const cached = localStorage.getItem("sl-profile");
       if (cached) {
         const parsed = JSON.parse(cached);
