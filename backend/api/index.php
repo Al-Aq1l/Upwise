@@ -12,5 +12,9 @@ if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'OPTIONS
     exit(0);
 }
 
+// Reset script path so Laravel resolves /api/* routes accurately
+$_SERVER['SCRIPT_NAME'] = '/index.php';
+$_SERVER['SCRIPT_FILENAME'] = __DIR__ . '/../public/index.php';
+
 // Forward Vercel serverless requests to public/index.php
 require __DIR__ . '/../public/index.php';
