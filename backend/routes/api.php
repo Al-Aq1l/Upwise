@@ -18,7 +18,7 @@ use App\Http\Controllers\Api\SettingsController;
 */
 
 // Public routes
-Route::post('/login', [AuthController::class, 'login']);
+Route::post('/login', [AuthController::class, 'login'])->name('login');
 
 // Protected routes (require Sanctum token)
 Route::middleware('auth:sanctum')->group(function () {
