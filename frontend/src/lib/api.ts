@@ -1,8 +1,17 @@
 import axios from "axios";
 
-let rawUrl = (import.meta.env.VITE_API_URL || "/api").trim();
-if (rawUrl.startsWith("http") && !rawUrl.endsWith("/api") && !rawUrl.endsWith("/api/")) {
-  rawUrl = `${rawUrl.replace(/\/+$/, "")}/api`;
+// Bulletproof API URL Normalizer
+let rawUrl = (import.meta.env.VITE_API_URL || "/api").trim().replace(/\/+$/, "");
+
+// Strip accidental trailing endpoints like /login or double /api
+rawUrl = rawUrl.replace(/\/login$/i, "").replace(/\/api\/api$/i, "/api");
+
+if (rawUrl.startsWith("http")) {
+  if (!rawUrl.endsWith("/api")) {
+    rawUrl = `${rawUrl}/api`;
+  }
+} else {
+  rawUrl = "/api";
 }
 
 const api = axios.create({
