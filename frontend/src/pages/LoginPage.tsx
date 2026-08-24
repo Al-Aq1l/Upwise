@@ -3,8 +3,8 @@ import { Shield, ChevronRight } from "lucide-react";
 import { useLogin } from "@/hooks/useAuth";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("hunter@solo.local");
-  const [password, setPassword] = useState("hunter123");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const loginMutation = useLogin();
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -24,8 +24,6 @@ export default function LoginPage() {
               height={64}
               style={{ objectFit: "contain" }}
             />
-            <span />
-            <span />
           </div>
           <h1>Upwise</h1>
           <p>Masuk, pilih quest harian, jalankan sesi fokus, lalu tutup hari dengan refleksi dan EXP.</p>
@@ -39,6 +37,7 @@ export default function LoginPage() {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              placeholder="hunter@solo.local"
               required
             />
           </label>
