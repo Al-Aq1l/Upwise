@@ -24,16 +24,23 @@ class StatisticsController extends Controller
             default => 7,
         };
 
+        $startDate = Carbon::today()->subDays($days - 1)->toDateString();
+        $statsMap = $user->dailyStats()
+            ->where('date', '>=', $startDate)
+            ->get()
+            ->keyBy(fn ($s) => Carbon::parse($s->date)->toDateString());
+
         $stats = [];
         $dayNames = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
 
         for ($i = $days - 1; $i >= 0; $i--) {
             $date = Carbon::today()->subDays($i);
-            $stat = $user->dailyStats()->whereDate('date', $date)->first();
+            $dateKey = $date->toDateString();
+            $stat = $statsMap->get($dateKey);
 
             $stats[] = [
                 'label' => $period === 'weekly' ? $dayNames[$date->dayOfWeek] : $date->format('d/m'),
-                'date' => $date->toDateString(),
+                'date' => $dateKey,
                 'exp' => $stat?->total_exp_earned ?? 0,
                 'quests_completed' => $stat?->quests_completed ?? 0,
                 'quests_total' => $stat?->quests_total ?? 0,
@@ -73,11 +80,18 @@ class StatisticsController extends Controller
     public function heatmap(Request $request): JsonResponse
     {
         $user = $request->user();
+        $startDate = Carbon::today()->subDays(364)->toDateString();
+        $statsMap = $user->dailyStats()
+            ->where('date', '>=', $startDate)
+            ->get()
+            ->keyBy(fn ($s) => Carbon::parse($s->date)->toDateString());
+
         $heatmapData = [];
 
         for ($i = 364; $i >= 0; $i--) {
             $date = Carbon::today()->subDays($i);
-            $stat = $user->dailyStats()->whereDate('date', $date)->first();
+            $dateKey = $date->toDateString();
+            $stat = $statsMap->get($dateKey);
 
             $intensity = 0;
             if ($stat) {
@@ -89,7 +103,7 @@ class StatisticsController extends Controller
             }
 
             $heatmapData[] = [
-                'date' => $date->toDateString(),
+                'date' => $dateKey,
                 'intensity' => $intensity,
                 'exp' => $stat?->total_exp_earned ?? 0,
             ];

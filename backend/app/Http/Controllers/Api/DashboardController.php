@@ -43,16 +43,24 @@ class DashboardController extends Controller
         // Level progress
         $levelProgress = $this->gamification->levelProgress($profile->exp);
 
+        // Fetch all daily stats for the last 35 days in 1 fast batch query
+        $startDate = Carbon::today()->subDays(34)->toDateString();
+        $dailyStatsMap = $user->dailyStats()
+            ->where('date', '>=', $startDate)
+            ->get()
+            ->keyBy(fn ($s) => Carbon::parse($s->date)->toDateString());
+
         // Weekly stats (last 7 days)
         $weeklyStats = [];
+        $dayNames = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
         for ($i = 6; $i >= 0; $i--) {
             $date = Carbon::today()->subDays($i);
-            $stat = $user->dailyStats()->whereDate('date', $date)->first();
-            $dayNames = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
+            $dateKey = $date->toDateString();
+            $stat = $dailyStatsMap->get($dateKey);
 
             $weeklyStats[] = [
                 'label' => $dayNames[$date->dayOfWeek],
-                'date' => $date->toDateString(),
+                'date' => $dateKey,
                 'exp' => $stat?->total_exp_earned ?? 0,
                 'quests' => $stat ? ($stat->quests_total > 0 ? round(($stat->quests_completed / $stat->quests_total) * 100) : 0) : 0,
                 'focus' => $stat?->focus_minutes ?? 0,
@@ -63,7 +71,9 @@ class DashboardController extends Controller
         $heatmapData = [];
         for ($i = 34; $i >= 0; $i--) {
             $date = Carbon::today()->subDays($i);
-            $stat = $user->dailyStats()->whereDate('date', $date)->first();
+            $dateKey = $date->toDateString();
+            $stat = $dailyStatsMap->get($dateKey);
+
             $intensity = 0;
             if ($stat) {
                 $score = $stat->total_exp_earned;
@@ -73,7 +83,7 @@ class DashboardController extends Controller
                 elseif ($score > 0) $intensity = 1;
             }
             $heatmapData[] = [
-                'date' => $date->toDateString(),
+                'date' => $dateKey,
                 'intensity' => $intensity,
             ];
         }
