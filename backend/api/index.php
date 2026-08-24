@@ -18,8 +18,18 @@ $_SERVER['SCRIPT_NAME'] = '/index.php';
 $_SERVER['PHP_SELF'] = '/index.php';
 $_SERVER['SCRIPT_FILENAME'] = __DIR__ . '/../public/index.php';
 
-require __DIR__ . '/../vendor/autoload.php';
-$app = require_once __DIR__ . '/../bootstrap/app.php';
+try {
+    require __DIR__ . '/../vendor/autoload.php';
+    $app = require_once __DIR__ . '/../bootstrap/app.php';
 
-$request = Illuminate\Http\Request::capture();
-$app->handleRequest($request);
+    $request = Illuminate\Http\Request::capture();
+    $app->handleRequest($request);
+} catch (\Throwable $e) {
+    http_response_code(500);
+    header('Content-Type: application/json');
+    echo json_encode([
+        'error' => $e->getMessage(),
+        'file' => $e->getFile() . ':' . $e->getLine(),
+        'trace' => explode("\n", $e->getTraceAsString()),
+    ], JSON_PRETTY_PRINT);
+}
