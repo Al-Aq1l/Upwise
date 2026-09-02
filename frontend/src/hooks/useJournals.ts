@@ -33,7 +33,34 @@ export function useCreateJournal() {
       const res = await api.post("/journals", data);
       return res.data;
     },
-    onSuccess: () => {
+    onMutate: async (newEntry) => {
+      await queryClient.cancelQueries({ queryKey: ["journals"] });
+      const previousJournals = queryClient.getQueryData<PaginatedJournals>(["journals", 1]);
+
+      const optimisticJournal: Journal = {
+        id: Date.now(),
+        title: newEntry.title,
+        body: newEntry.body,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+
+      if (previousJournals) {
+        queryClient.setQueryData<PaginatedJournals>(["journals", 1], {
+          ...previousJournals,
+          data: [optimisticJournal, ...previousJournals.data],
+          total: previousJournals.total + 1,
+        });
+      }
+
+      return { previousJournals };
+    },
+    onError: (_err, _vars, context) => {
+      if (context?.previousJournals) {
+        queryClient.setQueryData(["journals", 1], context.previousJournals);
+      }
+    },
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["journals"] });
       queryClient.invalidateQueries({ queryKey: ["dashboard"] });
       queryClient.invalidateQueries({ queryKey: ["achievements"] });
@@ -61,7 +88,26 @@ export function useDeleteJournal() {
       const res = await api.delete(`/journals/${id}`);
       return res.data;
     },
-    onSuccess: () => {
+    onMutate: async (id: number) => {
+      await queryClient.cancelQueries({ queryKey: ["journals"] });
+      const previousJournals = queryClient.getQueryData<PaginatedJournals>(["journals", 1]);
+
+      if (previousJournals) {
+        queryClient.setQueryData<PaginatedJournals>(["journals", 1], {
+          ...previousJournals,
+          data: previousJournals.data.filter((j) => j.id !== id),
+          total: Math.max(0, previousJournals.total - 1),
+        });
+      }
+
+      return { previousJournals };
+    },
+    onError: (_err, _id, context) => {
+      if (context?.previousJournals) {
+        queryClient.setQueryData(["journals", 1], context.previousJournals);
+      }
+    },
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["journals"] });
       queryClient.invalidateQueries({ queryKey: ["achievements"] });
     },
