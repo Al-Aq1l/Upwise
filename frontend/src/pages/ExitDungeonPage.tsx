@@ -26,19 +26,18 @@ export default function ExitDungeonPage() {
     e.preventDefault();
     setErrorMessage(null);
 
+    // Instant optimistic notification and navigation
+    showToast({
+      type: "level",
+      title: "Dungeon Cleared!",
+      message: `Hari ini berhasil ditutup! +${estimatedReward} EXP diperoleh.`,
+      exp: estimatedReward,
+    });
+    navigate("/");
+
     checkOutMutation.mutate(
       { reflection, learning, productivity, end_mood: endMood },
       {
-        onSuccess: (data: any) => {
-          const expEarned = data?.exp_earned || estimatedReward;
-          showToast({
-            type: "level",
-            title: "Dungeon Cleared!",
-            message: `Hari ini berhasil ditutup! +${expEarned} EXP diperoleh.`,
-            exp: expEarned,
-          });
-          navigate("/");
-        },
         onError: (err: any) => {
           const msg =
             err?.response?.data?.message ||

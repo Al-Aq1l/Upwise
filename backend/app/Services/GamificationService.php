@@ -146,7 +146,7 @@ class GamificationService
     /**
      * Add EXP to a user's profile and recalculate level, rank, battle power.
      */
-    public function addExp(User $user, int $expAmount, ?string $reason = null): HunterProfile
+    public function addExp(User $user, int $expAmount, ?string $reason = null, ?DungeonSession $todaySession = null): HunterProfile
     {
         $profile = $user->hunterProfile;
         if (!$profile) {
@@ -174,7 +174,9 @@ class GamificationService
 
         $todayFocus = (int) ($user->focusSessions()->whereDate('date', today())->sum('duration_minutes') ?? 0);
 
-        $todaySession = $user->dungeonSessions()->whereDate('date', today())->first();
+        if (!$todaySession) {
+            $todaySession = $user->dungeonSessions()->whereDate('date', today())->first();
+        }
         $productivity = (int) ($todaySession?->productivity ?? 4);
 
         $profile->battle_power = $this->calculateBattlePower(
@@ -188,8 +190,17 @@ class GamificationService
         $profile->rank = $this->determineRank((int) $profile->level, (int) $profile->battle_power);
         $profile->save();
 
-        // Update daily stats
-        $this->updateDailyStats($user);
+        // Update daily stats directly with computed numbers to save extra DB roundtrips
+        DailyStat::updateOrCreate(
+            ['user_id' => $user->id, 'date' => today()],
+            [
+                'total_exp_earned' => (int) ($todaySession?->exp_earned ?? 0),
+                'quests_completed' => (int) $completedQuests,
+                'quests_total' => (int) $totalQuests,
+                'focus_minutes' => (int) $todayFocus,
+                'productivity_score' => (int) $productivity,
+            ]
+        );
 
         return $profile;
     }
@@ -248,7 +259,7 @@ class GamificationService
         $todayFocus = (int) ($user->focusSessions()->whereDate('date', $today)->sum('duration_minutes') ?? 0);
         $todaySession = $user->dungeonSessions()->whereDate('date', $today)->first();
 
-        $stat = DailyStat::updateOrCreate(
+        return DailyStat::updateOrCreate(
             ['user_id' => $user->id, 'date' => $today],
             [
                 'total_exp_earned' => (int) ($todaySession?->exp_earned ?? 0),
@@ -258,7 +269,5 @@ class GamificationService
                 'productivity_score' => (int) ($todaySession?->productivity ?? 4),
             ]
         );
-
-        return $stat;
     }
 }

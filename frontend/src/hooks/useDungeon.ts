@@ -18,7 +18,47 @@ export function useCheckIn() {
       const res = await api.post("/dungeon/check-in", data);
       return res.data;
     },
-    onSuccess: () => {
+    onMutate: async (newCheckIn) => {
+      await queryClient.cancelQueries({ queryKey: ["dungeon-today"] });
+      await queryClient.cancelQueries({ queryKey: ["dashboard"] });
+
+      const previousDungeon = queryClient.getQueryData(["dungeon-today"]);
+      const previousDashboard = queryClient.getQueryData(["dashboard"]);
+
+      queryClient.setQueryData(["dungeon-today"], {
+        status: "active",
+        session: {
+          status: "active",
+          mood: newCheckIn.mood,
+          energy: newCheckIn.energy,
+          note: newCheckIn.note,
+          check_in_at: new Date().toISOString(),
+        },
+      });
+
+      queryClient.setQueryData(["dashboard"], (old: any) => {
+        if (!old) return old;
+        return {
+          ...old,
+          dungeon_status: "active",
+          profile: {
+            ...old.profile,
+            exp: (old.profile?.exp ?? 0) + 25,
+          },
+        };
+      });
+
+      return { previousDungeon, previousDashboard };
+    },
+    onError: (_err, _newCheckIn, context) => {
+      if (context?.previousDungeon) {
+        queryClient.setQueryData(["dungeon-today"], context.previousDungeon);
+      }
+      if (context?.previousDashboard) {
+        queryClient.setQueryData(["dashboard"], context.previousDashboard);
+      }
+    },
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["dungeon-today"] });
       queryClient.invalidateQueries({ queryKey: ["dashboard"] });
     },
@@ -32,7 +72,36 @@ export function useCheckOut() {
       const res = await api.post("/dungeon/check-out", data);
       return res.data;
     },
-    onSuccess: () => {
+    onMutate: async () => {
+      await queryClient.cancelQueries({ queryKey: ["dungeon-today"] });
+      await queryClient.cancelQueries({ queryKey: ["dashboard"] });
+
+      const previousDungeon = queryClient.getQueryData(["dungeon-today"]);
+      const previousDashboard = queryClient.getQueryData(["dashboard"]);
+
+      queryClient.setQueryData(["dungeon-today"], {
+        status: "completed",
+      });
+
+      queryClient.setQueryData(["dashboard"], (old: any) => {
+        if (!old) return old;
+        return {
+          ...old,
+          dungeon_status: "completed",
+        };
+      });
+
+      return { previousDungeon, previousDashboard };
+    },
+    onError: (_err, _vars, context) => {
+      if (context?.previousDungeon) {
+        queryClient.setQueryData(["dungeon-today"], context.previousDungeon);
+      }
+      if (context?.previousDashboard) {
+        queryClient.setQueryData(["dashboard"], context.previousDashboard);
+      }
+    },
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["dungeon-today"] });
       queryClient.invalidateQueries({ queryKey: ["dashboard"] });
       queryClient.invalidateQueries({ queryKey: ["statistics"] });

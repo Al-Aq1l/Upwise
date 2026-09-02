@@ -64,6 +64,8 @@ class DungeonController extends Controller
                 ], 422);
             }
 
+            $expEarned = (int) $this->gamification->checkInExp();
+
             $session = DungeonSession::create([
                 'user_id' => $user->id,
                 'date' => $today,
@@ -72,19 +74,15 @@ class DungeonController extends Controller
                 'mood' => $request->mood,
                 'energy' => (int) $request->energy,
                 'note' => $request->note,
+                'exp_earned' => $expEarned,
             ]);
 
-            // Give check-in EXP
-            $expEarned = (int) $this->gamification->checkInExp();
-            $session->exp_earned = $expEarned;
-            $session->save();
-
-            $this->gamification->addExp($user, $expEarned, 'check_in');
+            $this->gamification->addExp($user, $expEarned, 'check_in', $session);
             $this->achievements->checkAndUnlock($user);
 
             return response()->json([
                 'message' => 'Dungeon entered! +' . $expEarned . ' EXP',
-                'session' => $session->fresh(),
+                'session' => $session,
                 'exp_earned' => $expEarned,
             ]);
         } catch (\Throwable $e) {
@@ -158,15 +156,15 @@ class DungeonController extends Controller
             // Update streak
             $this->gamification->updateStreak($user);
 
-            // Add EXP
-            $profile = $this->gamification->addExp($user, $totalExp, 'check_out');
+            // Add EXP with pre-loaded session
+            $profile = $this->gamification->addExp($user, $totalExp, 'check_out', $session);
 
             // Check achievements
             $newAchievements = $this->achievements->checkAndUnlock($user);
 
             return response()->json([
                 'message' => 'Dungeon cleared! +' . $totalExp . ' EXP',
-                'session' => $session->fresh(),
+                'session' => $session,
                 'exp_earned' => $totalExp,
                 'profile' => $profile,
                 'new_achievements' => $newAchievements,

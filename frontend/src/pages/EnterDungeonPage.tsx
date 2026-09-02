@@ -23,18 +23,18 @@ export default function EnterDungeonPage() {
     e.preventDefault();
     setErrorMessage(null);
 
+    // Instant optimistic notification and navigation
+    showToast({
+      type: "dungeon",
+      title: "Dungeon Gate Unlocked!",
+      message: "Check-in berhasil! +25 EXP diperoleh.",
+      exp: 25,
+    });
+    navigate("/");
+
     checkInMutation.mutate(
       { mood, energy, note: note.trim() || undefined },
       {
-        onSuccess: () => {
-          showToast({
-            type: "dungeon",
-            title: "Dungeon Gate Unlocked!",
-            message: "Check-in berhasil! +20 EXP diperoleh.",
-            exp: 20,
-          });
-          navigate("/");
-        },
         onError: (err: any) => {
           const msg =
             err?.response?.data?.message ||
