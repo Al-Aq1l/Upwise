@@ -31,11 +31,20 @@ class JournalController extends Controller
         try {
             $user = $request->user();
 
-            $journal = Journal::create([
+            $journalData = [
                 'user_id' => $user->id,
                 'title' => $request->title,
                 'body' => $request->body,
-            ]);
+            ];
+
+            if (\Illuminate\Support\Facades\Schema::hasColumn('journals', 'date')) {
+                $journalData['date'] = today();
+            }
+            if (\Illuminate\Support\Facades\Schema::hasColumn('journals', 'mood')) {
+                $journalData['mood'] = $request->mood ?? 'Baik';
+            }
+
+            $journal = Journal::create($journalData);
 
             $expEarned = (int) $this->gamification->journalExp();
             $this->gamification->addExp($user, $expEarned, 'journal');
