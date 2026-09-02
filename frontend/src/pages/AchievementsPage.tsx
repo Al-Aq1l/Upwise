@@ -23,9 +23,7 @@ function TargetIcon({ size, className }: { size?: number; className?: string }) 
 }
 
 export default function AchievementsPage() {
-  const { data, isLoading } = useAchievements();
-
-  if (isLoading) return <LoadingSpinner />;
+  const { data } = useAchievements();
 
   return (
     <div className="achievement-grid">

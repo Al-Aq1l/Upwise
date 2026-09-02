@@ -12,6 +12,7 @@ import {
   Shield,
   Zap,
   ChevronRight,
+  CheckCircle2,
 } from "lucide-react";
 import { useDashboard } from "@/hooks/useDashboard";
 import { useToggleQuest } from "@/hooks/useQuests";
@@ -171,7 +172,7 @@ export default function DashboardPage() {
 
           {/* Action Row */}
           <div className="status-action-row">
-            {dungeon_status !== "completed" && (
+            {dungeon_status !== "completed" ? (
               <button
                 className="hunter-action-btn primary-btn-glow"
                 onClick={() =>
@@ -180,6 +181,14 @@ export default function DashboardPage() {
               >
                 <Swords size={18} />
                 <span>{dungeon_status === "active" ? "Exit Dungeon" : "Enter Dungeon"}</span>
+              </button>
+            ) : (
+              <button
+                className="hunter-action-btn secondary-btn-glass"
+                onClick={() => navigate("/statistics")}
+              >
+                <CheckCircle2 size={18} className="text-emerald" />
+                <span>Dungeon Cleared</span>
               </button>
             )}
             <button

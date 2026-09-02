@@ -82,8 +82,6 @@ export default function DailyQuestPage() {
     });
   };
 
-  if (isLoading) return <LoadingSpinner />;
-
   return (
     <div className="content-grid two-col">
       <section className="panel form-panel">

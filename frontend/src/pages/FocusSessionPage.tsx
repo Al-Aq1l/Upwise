@@ -113,8 +113,6 @@ export default function FocusSessionPage() {
     return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
   };
 
-  if (isQuestsLoading || isSessionsLoading) return <LoadingSpinner />;
-
   return (
     <div className="content-grid two-col">
       <section className="focus-stage">

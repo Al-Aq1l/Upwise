@@ -11,8 +11,7 @@ export default function StatisticsPage() {
   const { data, isLoading } = useStatistics(period);
   const { data: heatmapData, isLoading: isHeatmapLoading } = useHeatmap();
 
-  if (isLoading || isHeatmapLoading) return <LoadingSpinner />;
-  if (!data) return <div className="error-panel">Gagal memuat data statistik.</div>;
+  if (!data) return null;
 
   const { summary, stats } = data;
 
