@@ -149,29 +149,43 @@ class GamificationService
     public function addExp(User $user, int $expAmount, ?string $reason = null): HunterProfile
     {
         $profile = $user->hunterProfile;
-        $profile->exp += $expAmount;
-        $profile->level = $this->levelFromExp($profile->exp);
+        if (!$profile) {
+            $profile = HunterProfile::create([
+                'user_id' => $user->id,
+                'exp' => 0,
+                'streak' => 0,
+                'longest_streak' => 0,
+                'battle_power' => 0,
+                'level' => 1,
+                'rank' => 'E',
+                'theme' => 'dark',
+            ]);
+            $user->setRelation('hunterProfile', $profile);
+        }
+
+        $profile->exp = (int) $profile->exp + $expAmount;
+        $profile->level = $this->levelFromExp((int) $profile->exp);
 
         // Recalculate battle power
         $todayQuests = $user->quests()->whereDate('date', today())->get();
-        $totalQuests = $todayQuests->count();
-        $completedQuests = $todayQuests->where('completed', true)->count();
-        $questCompletion = $totalQuests > 0 ? round(($completedQuests / $totalQuests) * 100) : 0;
+        $totalQuests = (int) $todayQuests->count();
+        $completedQuests = (int) $todayQuests->where('completed', true)->count();
+        $questCompletion = $totalQuests > 0 ? (int) round(($completedQuests / $totalQuests) * 100) : 0;
 
-        $todayFocus = $user->focusSessions()->whereDate('date', today())->sum('duration_minutes');
+        $todayFocus = (int) ($user->focusSessions()->whereDate('date', today())->sum('duration_minutes') ?? 0);
 
         $todaySession = $user->dungeonSessions()->whereDate('date', today())->first();
-        $productivity = $todaySession?->productivity ?? 4;
+        $productivity = (int) ($todaySession?->productivity ?? 4);
 
         $profile->battle_power = $this->calculateBattlePower(
-            $profile->level,
-            $profile->streak,
-            $questCompletion,
-            $productivity,
-            $todayFocus
+            (int) $profile->level,
+            (int) $profile->streak,
+            (int) $questCompletion,
+            (int) $productivity,
+            (int) $todayFocus
         );
 
-        $profile->rank = $this->determineRank($profile->level, $profile->battle_power);
+        $profile->rank = $this->determineRank((int) $profile->level, (int) $profile->battle_power);
         $profile->save();
 
         // Update daily stats
@@ -186,6 +200,19 @@ class GamificationService
     public function updateStreak(User $user): HunterProfile
     {
         $profile = $user->hunterProfile;
+        if (!$profile) {
+            $profile = HunterProfile::create([
+                'user_id' => $user->id,
+                'exp' => 0,
+                'streak' => 0,
+                'longest_streak' => 0,
+                'battle_power' => 0,
+                'level' => 1,
+                'rank' => 'E',
+                'theme' => 'dark',
+            ]);
+            $user->setRelation('hunterProfile', $profile);
+        }
 
         // Check if yesterday had a completed session
         $yesterday = Carbon::yesterday();
@@ -194,9 +221,9 @@ class GamificationService
             ->where('status', 'completed')
             ->first();
 
-        if ($yesterdaySession || $profile->streak === 0) {
-            $profile->streak += 1;
-            $profile->longest_streak = max($profile->longest_streak, $profile->streak);
+        if ($yesterdaySession || (int) $profile->streak === 0) {
+            $profile->streak = (int) $profile->streak + 1;
+            $profile->longest_streak = max((int) $profile->longest_streak, (int) $profile->streak);
         } else {
             // Check if today is a new streak start (no session yesterday)
             $todaySession = $user->dungeonSessions()
@@ -218,17 +245,17 @@ class GamificationService
     {
         $today = today();
         $todayQuests = $user->quests()->whereDate('date', $today)->get();
-        $todayFocus = $user->focusSessions()->whereDate('date', $today)->sum('duration_minutes');
+        $todayFocus = (int) ($user->focusSessions()->whereDate('date', $today)->sum('duration_minutes') ?? 0);
         $todaySession = $user->dungeonSessions()->whereDate('date', $today)->first();
 
         $stat = DailyStat::updateOrCreate(
             ['user_id' => $user->id, 'date' => $today],
             [
-                'total_exp_earned' => $todaySession?->exp_earned ?? 0,
-                'quests_completed' => $todayQuests->where('completed', true)->count(),
-                'quests_total' => $todayQuests->count(),
-                'focus_minutes' => $todayFocus,
-                'productivity_score' => $todaySession?->productivity,
+                'total_exp_earned' => (int) ($todaySession?->exp_earned ?? 0),
+                'quests_completed' => (int) $todayQuests->where('completed', true)->count(),
+                'quests_total' => (int) $todayQuests->count(),
+                'focus_minutes' => (int) $todayFocus,
+                'productivity_score' => (int) ($todaySession?->productivity ?? 4),
             ]
         );
 

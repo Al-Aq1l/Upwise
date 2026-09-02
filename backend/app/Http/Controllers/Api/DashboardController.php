@@ -20,6 +20,19 @@ class DashboardController extends Controller
     {
         $user = $request->user();
         $profile = $user->hunterProfile;
+        if (!$profile) {
+            $profile = \App\Models\HunterProfile::create([
+                'user_id' => $user->id,
+                'exp' => 0,
+                'streak' => 0,
+                'longest_streak' => 0,
+                'battle_power' => 0,
+                'level' => 1,
+                'rank' => 'E',
+                'theme' => 'dark',
+            ]);
+            $user->setRelation('hunterProfile', $profile);
+        }
         $today = today();
 
         // Today's dungeon session

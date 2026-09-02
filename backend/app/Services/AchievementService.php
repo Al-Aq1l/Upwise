@@ -43,16 +43,16 @@ class AchievementService
      */
     private function getCurrentValue(User $user, $profile, string $conditionType): int
     {
-        return match ($conditionType) {
-            'quest_completed_total' => $user->quests()->where('completed', true)->count(),
-            'streak' => $profile->streak,
-            'level' => $profile->level,
-            'journal_count' => $user->journals()->count(),
-            'focus_minutes_total' => $user->focusSessions()->sum('duration_minutes'),
-            'battle_power' => $profile->battle_power,
-            'dungeon_sessions_total' => $user->dungeonSessions()->where('status', 'completed')->count(),
-            'focus_sessions_total' => $user->focusSessions()->count(),
-            'longest_streak' => $profile->longest_streak,
+        return (int) match ($conditionType) {
+            'quest_completed_total' => (int) $user->quests()->where('completed', true)->count(),
+            'streak' => (int) ($profile?->streak ?? 0),
+            'level' => (int) ($profile?->level ?? 1),
+            'journal_count' => (int) $user->journals()->count(),
+            'focus_minutes_total' => (int) ($user->focusSessions()->sum('duration_minutes') ?? 0),
+            'battle_power' => (int) ($profile?->battle_power ?? 0),
+            'dungeon_sessions_total' => (int) $user->dungeonSessions()->where('status', 'completed')->count(),
+            'focus_sessions_total' => (int) $user->focusSessions()->count(),
+            'longest_streak' => (int) ($profile?->longest_streak ?? 0),
             default => 0,
         };
     }
