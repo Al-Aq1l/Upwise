@@ -30,17 +30,24 @@ export default function DailyQuestPage() {
     e.preventDefault();
     if (!title.trim()) return;
 
+    const currentTitle = title;
+    const currentDifficulty = difficulty;
+    const currentCategory = category;
+
+    // 1. Immediately reset form
+    setTitle("");
+
+    // 2. Immediately show toast notification
+    showToast({
+      type: "info",
+      title: "Quest Ditambahkan",
+      message: `"${currentTitle}" siap diselesaikan!`,
+    });
+
+    // 3. Mutate in background
     createQuestMutation.mutate(
-      { title, difficulty, category },
+      { title: currentTitle, difficulty: currentDifficulty, category: currentCategory },
       {
-        onSuccess: () => {
-          setTitle("");
-          showToast({
-            type: "info",
-            title: "Quest Ditambahkan",
-            message: `"${title}" siap diselesaikan!`,
-          });
-        },
         onError: (err: any) => {
           const msg = err?.response?.data?.message || "Gagal menambahkan quest. Silakan coba lagi.";
           showToast({
@@ -54,16 +61,16 @@ export default function DailyQuestPage() {
   };
 
   const handleApplyPreset = (preset: typeof ROUTINE_PRESETS[0]) => {
+    // Instantly notify
+    showToast({
+      type: "info",
+      title: "Routine Quest Ditambahkan",
+      message: `"${preset.title}" berhasil ditambahkan!`,
+    });
+
     createQuestMutation.mutate(
       { title: preset.title, difficulty: preset.difficulty, category: preset.category },
       {
-        onSuccess: () => {
-          showToast({
-            type: "info",
-            title: "Routine Quest Ditambahkan",
-            message: `"${preset.title}" berhasil ditambahkan!`,
-          });
-        },
         onError: (err: any) => {
           const msg = err?.response?.data?.message || "Gagal menerapkan preset quest.";
           showToast({
@@ -77,14 +84,14 @@ export default function DailyQuestPage() {
   };
 
   const handleDelete = (id: number) => {
+    // Instantly notify
+    showToast({
+      type: "info",
+      title: "Quest Dihapus",
+      message: "Quest berhasil dihapus.",
+    });
+
     deleteQuestMutation.mutate(id, {
-      onSuccess: () => {
-        showToast({
-          type: "info",
-          title: "Quest Dihapus",
-          message: "Quest berhasil dihapus.",
-        });
-      },
       onError: (err: any) => {
         const msg = err?.response?.data?.message || "Gagal menghapus quest.";
         showToast({
@@ -100,17 +107,17 @@ export default function DailyQuestPage() {
     const target = data?.quests.find((q) => q.id === id);
     const willBeCompleted = target ? !target.completed : false;
 
+    // Instantly notify and play sound if completed
+    if (willBeCompleted && target) {
+      showToast({
+        type: "quest",
+        title: "Quest Cleared!",
+        message: `Selamat, "${target.title}" selesai!`,
+        exp: target.exp_reward,
+      });
+    }
+
     toggleQuestMutation.mutate(id, {
-      onSuccess: () => {
-        if (willBeCompleted && target) {
-          showToast({
-            type: "quest",
-            title: "Quest Cleared!",
-            message: `Selamat, "${target.title}" selesai!`,
-            exp: target.exp_reward,
-          });
-        }
-      },
       onError: (err: any) => {
         const msg = err?.response?.data?.message || "Gagal mengubah status quest.";
         showToast({

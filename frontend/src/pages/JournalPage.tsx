@@ -19,20 +19,25 @@ export default function JournalPage() {
     e.preventDefault();
     if (!title.trim() || !body.trim()) return;
 
+    const currentTitle = title;
+    const currentBody = body;
+
+    // 1. Instantly reset inputs
+    setTitle("");
+    setBody("");
+
+    // 2. Instantly show toast notification (0ms)
+    showToast({
+      type: "quest",
+      title: "Journal Tersimpan!",
+      message: `Catatan jurnal berhasil disimpan! +35 EXP`,
+      exp: 35,
+    });
+
+    // 3. Mutate in background
     createJournalMutation.mutate(
-      { title, body },
+      { title: currentTitle, body: currentBody },
       {
-        onSuccess: (res: any) => {
-          setTitle("");
-          setBody("");
-          const exp = res?.exp_earned || 35;
-          showToast({
-            type: "quest",
-            title: "Journal Tersimpan!",
-            message: `Catatan jurnal berhasil disimpan! +${exp} EXP`,
-            exp,
-          });
-        },
         onError: (err: any) => {
           const msg = err?.response?.data?.message || "Gagal menyimpan journal. Silakan coba lagi.";
           showToast({
@@ -47,14 +52,14 @@ export default function JournalPage() {
 
   const handleDelete = (id: number) => {
     if (window.confirm("Hapus jurnal ini?")) {
+      // Instantly notify
+      showToast({
+        type: "info",
+        title: "Journal Dihapus",
+        message: "Entri jurnal berhasil dihapus.",
+      });
+
       deleteJournalMutation.mutate(id, {
-        onSuccess: () => {
-          showToast({
-            type: "info",
-            title: "Journal Dihapus",
-            message: "Entri jurnal berhasil dihapus.",
-          });
-        },
         onError: (err: any) => {
           const msg = err?.response?.data?.message || "Gagal menghapus journal.";
           showToast({

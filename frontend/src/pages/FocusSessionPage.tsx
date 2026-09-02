@@ -65,6 +65,20 @@ export default function FocusSessionPage() {
   }, [isRunning]);
 
   const handleSessionComplete = () => {
+    setIsRunning(false);
+
+    // Instantly notify and play sound
+    showToast({
+      type: "focus",
+      title: "Sesi Fokus Selesai!",
+      message: `Hebat! Kamu fokus selama ${duration} menit pada "${selectedQuest.title}".`,
+      exp: duration,
+    });
+    sendBrowserNotification(
+      "Sesi Fokus Selesai!",
+      `Fokus ${duration} menit selesai! Waktunya istirahat sejenak.`
+    );
+
     createSessionMutation.mutate(
       {
         quest_id: selectedQuest.id,
@@ -72,18 +86,6 @@ export default function FocusSessionPage() {
         duration_minutes: duration,
       },
       {
-        onSuccess: () => {
-          showToast({
-            type: "focus",
-            title: "Sesi Fokus Selesai!",
-            message: `Hebat! Kamu fokus selama ${duration} menit pada "${selectedQuest.title}".`,
-            exp: duration,
-          });
-          sendBrowserNotification(
-            "Sesi Fokus Selesai!",
-            `Fokus ${duration} menit selesai! Waktunya istirahat sejenak.`
-          );
-        },
         onError: (err: any) => {
           const msg = err?.response?.data?.message || "Gagal mencatat sesi fokus.";
           showToast({
