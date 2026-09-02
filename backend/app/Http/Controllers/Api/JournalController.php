@@ -61,21 +61,24 @@ class JournalController extends Controller
         }
     }
 
-    public function update(StoreJournalRequest $request, Journal $journal): JsonResponse
+    public function update(StoreJournalRequest $request, $journal): JsonResponse
     {
         try {
-            if ($journal->user_id !== $request->user()->id) {
+            $user = $request->user();
+            $journalModel = $journal instanceof Journal ? $journal : Journal::findOrFail($journal);
+
+            if ((int) $journalModel->user_id !== (int) $user->id) {
                 return response()->json(['message' => 'Unauthorized'], 403);
             }
 
-            $journal->update([
+            $journalModel->update([
                 'title' => $request->title,
                 'body' => $request->body,
             ]);
 
             return response()->json([
                 'message' => 'Journal diperbarui.',
-                'journal' => $journal->fresh(),
+                'journal' => $journalModel->fresh(),
             ]);
         } catch (\Throwable $e) {
             \Illuminate\Support\Facades\Log::error('UpdateJournal error: ' . $e->getMessage(), ['exception' => $e]);
@@ -83,14 +86,17 @@ class JournalController extends Controller
         }
     }
 
-    public function destroy(Request $request, Journal $journal): JsonResponse
+    public function destroy(Request $request, $journal): JsonResponse
     {
         try {
-            if ($journal->user_id !== $request->user()->id) {
+            $user = $request->user();
+            $journalModel = $journal instanceof Journal ? $journal : Journal::findOrFail($journal);
+
+            if ((int) $journalModel->user_id !== (int) $user->id) {
                 return response()->json(['message' => 'Unauthorized'], 403);
             }
 
-            $journal->delete();
+            $journalModel->delete();
 
             return response()->json(['message' => 'Journal dihapus.']);
         } catch (\Throwable $e) {

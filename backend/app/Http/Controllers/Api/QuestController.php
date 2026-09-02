@@ -134,7 +134,7 @@ class QuestController extends Controller
 
     private function authorizeQuest(Request $request, Quest $quest): void
     {
-        if ($quest->user_id !== $request->user()->id) {
+        if ((int) $quest->user_id !== (int) $request->user()->id) {
             abort(403, 'Unauthorized');
         }
     }
