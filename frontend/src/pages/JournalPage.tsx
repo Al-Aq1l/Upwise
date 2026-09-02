@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { BookOpenText, Save, X } from "lucide-react";
 import { useJournals, useCreateJournal, useDeleteJournal } from "@/hooks/useJournals";
+import { useNotificationStore } from "@/lib/notifications";
 import PanelTitle from "@/components/ui/PanelTitle";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 
@@ -12,6 +13,7 @@ export default function JournalPage() {
   const { data, isLoading } = useJournals(page);
   const createJournalMutation = useCreateJournal();
   const deleteJournalMutation = useDeleteJournal();
+  const { showToast } = useNotificationStore();
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
@@ -20,9 +22,24 @@ export default function JournalPage() {
     createJournalMutation.mutate(
       { title, body },
       {
-        onSuccess: () => {
+        onSuccess: (res: any) => {
           setTitle("");
           setBody("");
+          const exp = res?.exp_earned || 35;
+          showToast({
+            type: "quest",
+            title: "Journal Tersimpan!",
+            message: `Catatan jurnal berhasil disimpan! +${exp} EXP`,
+            exp,
+          });
+        },
+        onError: (err: any) => {
+          const msg = err?.response?.data?.message || "Gagal menyimpan journal. Silakan coba lagi.";
+          showToast({
+            type: "info",
+            title: "Gagal Simpan Journal",
+            message: msg,
+          });
         },
       }
     );
@@ -30,7 +47,23 @@ export default function JournalPage() {
 
   const handleDelete = (id: number) => {
     if (window.confirm("Hapus jurnal ini?")) {
-      deleteJournalMutation.mutate(id);
+      deleteJournalMutation.mutate(id, {
+        onSuccess: () => {
+          showToast({
+            type: "info",
+            title: "Journal Dihapus",
+            message: "Entri jurnal berhasil dihapus.",
+          });
+        },
+        onError: (err: any) => {
+          const msg = err?.response?.data?.message || "Gagal menghapus journal.";
+          showToast({
+            type: "info",
+            title: "Gagal Hapus",
+            message: msg,
+          });
+        },
+      });
     }
   };
 

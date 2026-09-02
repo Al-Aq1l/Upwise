@@ -28,50 +28,65 @@ class JournalController extends Controller
 
     public function store(StoreJournalRequest $request): JsonResponse
     {
-        $user = $request->user();
+        try {
+            $user = $request->user();
 
-        $journal = Journal::create([
-            'user_id' => $user->id,
-            'title' => $request->title,
-            'body' => $request->body,
-        ]);
+            $journal = Journal::create([
+                'user_id' => $user->id,
+                'title' => $request->title,
+                'body' => $request->body,
+            ]);
 
-        $expEarned = $this->gamification->journalExp();
-        $this->gamification->addExp($user, $expEarned, 'journal');
-        $this->achievements->checkAndUnlock($user);
+            $expEarned = (int) $this->gamification->journalExp();
+            $this->gamification->addExp($user, $expEarned, 'journal');
+            $this->achievements->checkAndUnlock($user);
 
-        return response()->json([
-            'message' => 'Journal disimpan! +' . $expEarned . ' EXP',
-            'journal' => $journal,
-            'exp_earned' => $expEarned,
-        ], 201);
+            return response()->json([
+                'message' => 'Journal disimpan! +' . $expEarned . ' EXP',
+                'journal' => $journal,
+                'exp_earned' => $expEarned,
+            ], 201);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('StoreJournal error: ' . $e->getMessage(), ['exception' => $e]);
+            return response()->json(['message' => 'Gagal menyimpan journal: ' . $e->getMessage()], 500);
+        }
     }
 
     public function update(StoreJournalRequest $request, Journal $journal): JsonResponse
     {
-        if ($journal->user_id !== $request->user()->id) {
-            abort(403, 'Unauthorized');
+        try {
+            if ($journal->user_id !== $request->user()->id) {
+                return response()->json(['message' => 'Unauthorized'], 403);
+            }
+
+            $journal->update([
+                'title' => $request->title,
+                'body' => $request->body,
+            ]);
+
+            return response()->json([
+                'message' => 'Journal diperbarui.',
+                'journal' => $journal->fresh(),
+            ]);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('UpdateJournal error: ' . $e->getMessage(), ['exception' => $e]);
+            return response()->json(['message' => 'Gagal memperbarui journal: ' . $e->getMessage()], 500);
         }
-
-        $journal->update([
-            'title' => $request->title,
-            'body' => $request->body,
-        ]);
-
-        return response()->json([
-            'message' => 'Journal diperbarui.',
-            'journal' => $journal->fresh(),
-        ]);
     }
 
     public function destroy(Request $request, Journal $journal): JsonResponse
     {
-        if ($journal->user_id !== $request->user()->id) {
-            abort(403, 'Unauthorized');
+        try {
+            if ($journal->user_id !== $request->user()->id) {
+                return response()->json(['message' => 'Unauthorized'], 403);
+            }
+
+            $journal->delete();
+
+            return response()->json(['message' => 'Journal dihapus.']);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('DestroyJournal error: ' . $e->getMessage(), ['exception' => $e]);
+            return response()->json(['message' => 'Gagal menghapus journal: ' . $e->getMessage()], 500);
         }
-
-        $journal->delete();
-
-        return response()->json(['message' => 'Journal dihapus.']);
     }
 }

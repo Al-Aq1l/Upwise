@@ -41,6 +41,14 @@ export default function DailyQuestPage() {
             message: `"${title}" siap diselesaikan!`,
           });
         },
+        onError: (err: any) => {
+          const msg = err?.response?.data?.message || "Gagal menambahkan quest. Silakan coba lagi.";
+          showToast({
+            type: "info",
+            title: "Gagal Tambah Quest",
+            message: msg,
+          });
+        },
       }
     );
   };
@@ -56,12 +64,36 @@ export default function DailyQuestPage() {
             message: `"${preset.title}" berhasil ditambahkan!`,
           });
         },
+        onError: (err: any) => {
+          const msg = err?.response?.data?.message || "Gagal menerapkan preset quest.";
+          showToast({
+            type: "info",
+            title: "Gagal Tambah Preset",
+            message: msg,
+          });
+        },
       }
     );
   };
 
   const handleDelete = (id: number) => {
-    deleteQuestMutation.mutate(id);
+    deleteQuestMutation.mutate(id, {
+      onSuccess: () => {
+        showToast({
+          type: "info",
+          title: "Quest Dihapus",
+          message: "Quest berhasil dihapus.",
+        });
+      },
+      onError: (err: any) => {
+        const msg = err?.response?.data?.message || "Gagal menghapus quest.";
+        showToast({
+          type: "info",
+          title: "Gagal Hapus",
+          message: msg,
+        });
+      },
+    });
   };
 
   const handleToggle = (id: number) => {
@@ -78,6 +110,14 @@ export default function DailyQuestPage() {
             exp: target.exp_reward,
           });
         }
+      },
+      onError: (err: any) => {
+        const msg = err?.response?.data?.message || "Gagal mengubah status quest.";
+        showToast({
+          type: "info",
+          title: "Gagal Update Quest",
+          message: msg,
+        });
       },
     });
   };

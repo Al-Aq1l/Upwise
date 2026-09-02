@@ -77,12 +77,20 @@ export default function FocusSessionPage() {
             type: "focus",
             title: "Sesi Fokus Selesai!",
             message: `Hebat! Kamu fokus selama ${duration} menit pada "${selectedQuest.title}".`,
-            exp: duration, // 1 EXP per minute
+            exp: duration,
           });
           sendBrowserNotification(
             "Sesi Fokus Selesai!",
             `Fokus ${duration} menit selesai! Waktunya istirahat sejenak.`
           );
+        },
+        onError: (err: any) => {
+          const msg = err?.response?.data?.message || "Gagal mencatat sesi fokus.";
+          showToast({
+            type: "info",
+            title: "Gagal Catat Sesi",
+            message: msg,
+          });
         },
       }
     );
