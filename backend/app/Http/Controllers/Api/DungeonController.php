@@ -21,13 +21,30 @@ class DungeonController extends Controller
 
     public function today(Request $request): JsonResponse
     {
-        $session = $request->user()->dungeonSessions()
+        $todaySessions = $request->user()->dungeonSessions()
             ->whereDate('date', today())
-            ->first();
+            ->get();
+
+        $completed = $todaySessions->firstWhere('status', 'completed');
+        $active = $todaySessions->firstWhere('status', 'active');
+
+        if ($completed) {
+            return response()->json([
+                'status' => 'completed',
+                'session' => $completed,
+            ]);
+        }
+
+        if ($active) {
+            return response()->json([
+                'status' => 'active',
+                'session' => $active,
+            ]);
+        }
 
         return response()->json([
-            'status' => $session?->status ?? 'not-started',
-            'session' => $session,
+            'status' => 'not-started',
+            'session' => null,
         ]);
     }
 

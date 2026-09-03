@@ -35,12 +35,20 @@ class DashboardController extends Controller
         }
         $today = today();
 
-        // Today's dungeon session
-        $todaySession = $user->dungeonSessions()->whereDate('date', $today)->first();
+        // Today's dungeon session (prioritize completed session)
+        $todaySessions = $user->dungeonSessions()->whereDate('date', $today)->get();
+        $completedSession = $todaySessions->firstWhere('status', 'completed');
+        $activeSession = $todaySessions->firstWhere('status', 'active');
 
-        $dungeonStatus = 'not-started';
-        if ($todaySession) {
-            $dungeonStatus = $todaySession->status;
+        if ($completedSession) {
+            $todaySession = $completedSession;
+            $dungeonStatus = 'completed';
+        } elseif ($activeSession) {
+            $todaySession = $activeSession;
+            $dungeonStatus = 'active';
+        } else {
+            $todaySession = null;
+            $dungeonStatus = 'not-started';
         }
 
         // Today's quests

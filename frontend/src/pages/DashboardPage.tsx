@@ -15,6 +15,7 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import { useDashboard } from "@/hooks/useDashboard";
+import { useDungeonToday } from "@/hooks/useDungeon";
 import { useToggleQuest } from "@/hooks/useQuests";
 import { useAuthStore } from "@/lib/auth";
 import Metric from "@/components/ui/Metric";
@@ -28,6 +29,7 @@ export default function DashboardPage() {
   const navigate = useNavigate();
   const { user } = useAuthStore();
   const { data, isLoading, isError } = useDashboard();
+  const { data: dungeonToday } = useDungeonToday();
   const toggleQuestMutation = useToggleQuest();
 
   if (isLoading) return <LoadingSpinner />;
@@ -45,6 +47,12 @@ export default function DashboardPage() {
     heatmap,
     recent_achievement,
   } = data;
+
+  // Unify dungeon status: if either hook reports completed, today is completed!
+  const effectiveStatus =
+    dungeonToday?.status === "completed" || dungeon_status === "completed"
+      ? "completed"
+      : dungeonToday?.status || dungeon_status || "not-started";
 
   const statusConfig = {
     "not-started": {
@@ -67,7 +75,7 @@ export default function DashboardPage() {
     },
   };
 
-  const currentStatus = statusConfig[dungeon_status] || statusConfig["not-started"];
+  const currentStatus = statusConfig[effectiveStatus] || statusConfig["not-started"];
 
   const handleQuestToggle = (id: number) => {
     toggleQuestMutation.mutate(id);
@@ -172,15 +180,15 @@ export default function DashboardPage() {
 
           {/* Action Row */}
           <div className="status-action-row">
-            {dungeon_status !== "completed" ? (
+            {effectiveStatus !== "completed" ? (
               <button
                 className="hunter-action-btn primary-btn-glow"
                 onClick={() =>
-                  navigate(dungeon_status === "active" ? "/exit-dungeon" : "/enter-dungeon")
+                  navigate(effectiveStatus === "active" ? "/exit-dungeon" : "/enter-dungeon")
                 }
               >
                 <Swords size={18} />
-                <span>{dungeon_status === "active" ? "Exit Dungeon" : "Enter Dungeon"}</span>
+                <span>{effectiveStatus === "active" ? "Exit Dungeon" : "Enter Dungeon"}</span>
               </button>
             ) : (
               <button

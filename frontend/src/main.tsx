@@ -22,7 +22,7 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       refetchOnWindowFocus: false,
-      staleTime: 1000 * 60 * 5, // Data remains fresh in browser RAM for 5 minutes (Instant 0ms transitions)
+      staleTime: 0, // Immediately revalidates in background on mount while showing instant cached data
       gcTime: 1000 * 60 * 60 * 24, // Cache preserved for 24 hours
       retry: 1,
     },
