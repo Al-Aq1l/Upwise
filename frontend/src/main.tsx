@@ -23,10 +23,34 @@ const queryClient = new QueryClient({
     queries: {
       refetchOnWindowFocus: false,
       staleTime: 1000 * 60 * 5, // Data remains fresh in browser RAM for 5 minutes (Instant 0ms transitions)
-      gcTime: 1000 * 60 * 30,    // Cache preserved for 30 minutes
+      gcTime: 1000 * 60 * 60 * 24, // Cache preserved for 24 hours
       retry: 1,
     },
   },
+});
+
+// 1. Synchronously hydrate cache from localStorage on app boot (Instant 0ms Hard Refresh)
+try {
+  for (let i = 0; i < localStorage.length; i++) {
+    const storageKey = localStorage.key(i);
+    if (storageKey && storageKey.startsWith("sl-cache-")) {
+      const queryKey = JSON.parse(storageKey.replace("sl-cache-", ""));
+      const raw = localStorage.getItem(storageKey);
+      if (raw) {
+        queryClient.setQueryData(queryKey, JSON.parse(raw));
+      }
+    }
+  }
+} catch (e) {}
+
+// 2. Automatically persist any successful query to localStorage
+queryClient.getQueryCache().subscribe((event) => {
+  if (event?.type === "updated" && event.action?.type === "success") {
+    try {
+      const keyStr = JSON.stringify(event.query.queryKey);
+      localStorage.setItem(`sl-cache-${keyStr}`, JSON.stringify(event.query.state.data));
+    } catch (e) {}
+  }
 });
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {

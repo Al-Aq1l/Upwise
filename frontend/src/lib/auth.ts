@@ -66,6 +66,16 @@ export const useAuthStore = create<AuthStore>((set) => ({
     localStorage.removeItem("sl-token");
     localStorage.removeItem("sl-user");
     localStorage.removeItem("sl-profile");
+    try {
+      const keysToRemove: string[] = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && (key.startsWith("sl-cache-") || key.startsWith("sl-"))) {
+          keysToRemove.push(key);
+        }
+      }
+      keysToRemove.forEach((k) => localStorage.removeItem(k));
+    } catch (e) {}
     set({ token: null, user: null, profile: null });
   },
 }));
