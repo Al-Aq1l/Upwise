@@ -18,21 +18,55 @@ export function useUpdateProfile() {
   });
 }
 
+let themeDebounceTimer: ReturnType<typeof setTimeout> | null = null;
+let lastUserChosenTheme: "dark" | "light" | null = null;
+
 export function useUpdateTheme() {
   const setTheme = useAuthStore((s) => s.setTheme);
 
-  return useMutation({
+  const mutation = useMutation({
     mutationFn: async (theme: "dark" | "light") => {
       const res = await api.put("/settings/theme", { theme });
-      return res.data;
-    },
-    onMutate: (theme) => {
-      setTheme(theme);
+      return { ...res.data, sentTheme: theme };
     },
     onSuccess: (data) => {
-      setTheme(data.theme);
+      // Guard against race conditions:
+      // Only apply if user hasn't changed theme again since this request was sent
+      const currentStoreTheme = useAuthStore.getState().profile?.theme;
+      if (currentStoreTheme === data.sentTheme) {
+        setTheme(data.theme);
+      }
+    },
+    onError: (_err, sentTheme) => {
+      // Only rollback if the user is still on the theme that failed
+      const currentStoreTheme = useAuthStore.getState().profile?.theme;
+      if (currentStoreTheme === sentTheme) {
+        setTheme(sentTheme === "dark" ? "light" : "dark");
+      }
     },
   });
+
+  const updateTheme = (newTheme: "dark" | "light") => {
+    // 1. Instant 0ms visual switch
+    lastUserChosenTheme = newTheme;
+    setTheme(newTheme);
+
+    // 2. Debounce backend sync so rapid toggling doesn't send conflicting out-of-order requests
+    if (themeDebounceTimer) {
+      clearTimeout(themeDebounceTimer);
+    }
+
+    themeDebounceTimer = setTimeout(() => {
+      if (lastUserChosenTheme) {
+        mutation.mutate(lastUserChosenTheme);
+      }
+    }, 450);
+  };
+
+  return {
+    ...mutation,
+    updateTheme,
+  };
 }
 
 export function useUpdateNotifications() {

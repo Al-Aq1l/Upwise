@@ -19,8 +19,8 @@ const pageTitles: Record<string, string> = {
 export default function Topbar() {
   const location = useLocation();
   const logoutMutation = useLogout();
-  const themeMutation = useUpdateTheme();
-  const { profile, setTheme } = useAuthStore();
+  const { updateTheme } = useUpdateTheme();
+  const { profile } = useAuthStore();
 
   const title = pageTitles[location.pathname] || "Upwise";
   const today = new Date().toLocaleDateString("id-ID", {
@@ -32,8 +32,7 @@ export default function Topbar() {
 
   const handleThemeToggle = () => {
     const nextTheme = profile?.theme === "dark" ? "light" : "dark";
-    setTheme(nextTheme); // Instant 0ms visual switch
-    themeMutation.mutate(nextTheme); // Silent background sync
+    updateTheme(nextTheme);
   };
 
   return (
