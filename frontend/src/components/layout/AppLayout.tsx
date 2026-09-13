@@ -3,6 +3,7 @@ import { Outlet, useLocation } from "react-router-dom";
 import Sidebar from "./Sidebar";
 import Topbar from "./Topbar";
 import BottomNavigation from "./BottomNavigation";
+import MobileDrawer from "./MobileDrawer";
 import SystemNotification from "@/components/ui/SystemNotification";
 import { useAuthStore } from "@/lib/auth";
 
@@ -28,6 +29,7 @@ export default function AppLayout() {
           <Outlet />
         </div>
       </main>
+      <MobileDrawer />
       <BottomNavigation />
       <SystemNotification />
     </div>

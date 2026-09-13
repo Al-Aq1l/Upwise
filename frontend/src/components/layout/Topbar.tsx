@@ -1,8 +1,9 @@
 import { useLocation } from "react-router-dom";
-import { Moon, Sun, LogOut } from "lucide-react";
+import { Moon, Sun, LogOut, Menu } from "lucide-react";
 import { useAuthStore } from "@/lib/auth";
 import { useLogout } from "@/hooks/useAuth";
 import { useUpdateTheme } from "@/hooks/useSettings";
+import { useMobileMenuStore } from "@/lib/mobileMenu";
 
 const pageTitles: Record<string, string> = {
   "/": "Dashboard",
@@ -13,6 +14,7 @@ const pageTitles: Record<string, string> = {
   "/exit-dungeon": "Exit Dungeon",
   "/statistics": "Statistics",
   "/achievements": "Achievement",
+  "/history": "Riwayat Aktivitas",
   "/settings": "Settings",
 };
 
@@ -21,6 +23,7 @@ export default function Topbar() {
   const logoutMutation = useLogout();
   const { updateTheme } = useUpdateTheme();
   const { profile } = useAuthStore();
+  const { toggleMenu } = useMobileMenuStore();
 
   const title = pageTitles[location.pathname] || "Upwise";
   const today = new Date().toLocaleDateString("id-ID", {
@@ -50,7 +53,14 @@ export default function Topbar() {
           {profile?.theme === "light" ? <Moon size={18} /> : <Sun size={18} />}
         </button>
         <button
-          className="ghost"
+          className="icon-btn mobile-menu-btn"
+          aria-label="Menu navigasi lengkap"
+          onClick={toggleMenu}
+        >
+          <Menu size={18} />
+        </button>
+        <button
+          className="ghost desktop-only-btn"
           onClick={() => logoutMutation.mutate()}
           disabled={logoutMutation.isPending}
         >

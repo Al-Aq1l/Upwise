@@ -14,6 +14,7 @@ import JournalPage from "./pages/JournalPage";
 import ExitDungeonPage from "./pages/ExitDungeonPage";
 import StatisticsPage from "./pages/StatisticsPage";
 import AchievementsPage from "./pages/AchievementsPage";
+import HistoryPage from "./pages/HistoryPage";
 import SettingsPage from "./pages/SettingsPage";
 
 import "./styles.css";
@@ -95,6 +96,7 @@ function App() {
             <Route path="exit-dungeon" element={<ExitDungeonPage />} />
             <Route path="statistics" element={<StatisticsPage />} />
             <Route path="achievements" element={<AchievementsPage />} />
+            <Route path="history" element={<HistoryPage />} />
             <Route path="settings" element={<SettingsPage />} />
           </Route>
 

@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\JournalController;
 use App\Http\Controllers\Api\StatisticsController;
 use App\Http\Controllers\Api\AchievementController;
 use App\Http\Controllers\Api\SettingsController;
+use App\Http\Controllers\Api\HistoryController;
 
 /*
 |--------------------------------------------------------------------------
@@ -58,6 +59,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Achievements
     Route::get('/achievements', [AchievementController::class, 'index']);
+
+    // History (All Activity)
+    Route::get('/history', [HistoryController::class, 'index']);
 
     // Settings
     Route::put('/settings/profile', [SettingsController::class, 'updateProfile']);

@@ -12,6 +12,8 @@ import {
   Volume2,
   Smartphone,
   CheckCircle2,
+  History,
+  Compass,
 } from "lucide-react";
 import { useAuthStore } from "@/lib/auth";
 import {
@@ -151,6 +153,68 @@ export default function SettingsPage() {
 
   return (
     <div className="content-grid two-col settings-view-wrapper">
+      {/* Quick Menu Shortcuts (Accessible on mobile & desktop) */}
+      <section className="panel span-2 quick-access-panel">
+        <PanelTitle icon={Compass} title="Navigasi Menu Lengkap" />
+        <div className="quick-access-grid">
+          <button
+            type="button"
+            className="quick-access-card"
+            onClick={() => navigate("/statistics")}
+          >
+            <div className="quick-access-icon cyan">
+              <BarChart3 size={22} />
+            </div>
+            <div className="quick-access-info">
+              <strong>Statistik & Heatmap</strong>
+              <span>Analisis progres & grafik aktivitas</span>
+            </div>
+          </button>
+
+          <button
+            type="button"
+            className="quick-access-card"
+            onClick={() => navigate("/achievements")}
+          >
+            <div className="quick-access-icon amber">
+              <Trophy size={22} />
+            </div>
+            <div className="quick-access-info">
+              <strong>Achievement & Lencana</strong>
+              <span>12 Lencana kompetensi Awakening</span>
+            </div>
+          </button>
+
+          <button
+            type="button"
+            className="quick-access-card"
+            onClick={() => navigate("/history")}
+          >
+            <div className="quick-access-icon emerald">
+              <History size={22} />
+            </div>
+            <div className="quick-access-info">
+              <strong>Semua Riwayat</strong>
+              <span>Log sesi fokus, quest & dungeon</span>
+            </div>
+          </button>
+
+          <button
+            type="button"
+            className="quick-access-card"
+            onClick={() => navigate("/adventure-journal")}
+          >
+            <div className="quick-access-icon violet">
+              <BookOpenText size={22} />
+            </div>
+            <div className="quick-access-info">
+              <strong>Adventure Journal</strong>
+              <span>Catatan refleksi & evaluasi harian</span>
+            </div>
+          </button>
+        </div>
+      </section>
+
       <section className="panel form-panel">
         <PanelTitle icon={User} title="Profil Hunter" />
         <form onSubmit={handleProfileSave} className="form-container">

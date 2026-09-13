@@ -1,48 +1,61 @@
 import { useNavigate, useLocation } from "react-router-dom";
-import { CircleGauge, ClipboardList, Swords, Timer, Settings, LogOut } from "lucide-react";
-import { useDungeonToday } from "@/hooks/useDungeon";
+import { CircleGauge, ClipboardList, Timer, BarChart3, LayoutGrid } from "lucide-react";
+import { useMobileMenuStore } from "@/lib/mobileMenu";
 
 export default function BottomNavigation() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { data: dungeonState } = useDungeonToday();
-
-  const status = dungeonState?.status || "not-started";
-  const dungeonPath = status === "active" ? "/exit-dungeon" : "/enter-dungeon";
-  const dungeonLabel = status === "active" ? "Exit" : "Dungeon";
-  const DungeonIcon = status === "active" ? LogOut : Swords;
+  const { isOpen, toggleMenu, closeMenu } = useMobileMenuStore();
 
   const navItems = [
     { path: "/", label: "Home", icon: CircleGauge },
     { path: "/daily-quest", label: "Quests", icon: ClipboardList },
-    { path: dungeonPath, label: dungeonLabel, icon: DungeonIcon, primary: true, isDungeon: true },
     { path: "/focus-session", label: "Focus", icon: Timer },
-    { path: "/settings", label: "More", icon: Settings },
+    { path: "/statistics", label: "Stats", icon: BarChart3 },
   ];
+
+  const isMenuSection =
+    isOpen ||
+    [
+      "/achievements",
+      "/history",
+      "/adventure-journal",
+      "/settings",
+      "/enter-dungeon",
+      "/exit-dungeon",
+    ].includes(location.pathname);
 
   return (
     <nav className="bottom-nav">
       {navItems.map((item) => {
         const Icon = item.icon;
-        const isActive =
-          item.isDungeon
-            ? ["/enter-dungeon", "/exit-dungeon"].includes(location.pathname)
-            : location.pathname === item.path ||
-              (item.path === "/settings" &&
-                ["/adventure-journal", "/statistics", "/achievements"].includes(location.pathname));
+        const isActive = location.pathname === item.path && !isOpen;
 
         return (
           <button
             key={item.path}
-            className={`bottom-nav-item ${isActive ? "active" : ""} ${item.primary ? "primary-action-btn" : ""}`}
-            onClick={() => navigate(item.path)}
+            className={`bottom-nav-item ${isActive ? "active" : ""}`}
+            onClick={() => {
+              closeMenu();
+              navigate(item.path);
+            }}
             aria-label={item.label}
           >
-            <Icon size={item.primary ? 24 : 20} />
+            <Icon size={20} />
             <span className="bottom-nav-label">{item.label}</span>
           </button>
         );
       })}
+
+      <button
+        type="button"
+        className={`bottom-nav-item ${isMenuSection ? "active" : ""}`}
+        onClick={toggleMenu}
+        aria-label="Menu Lengkap"
+      >
+        <LayoutGrid size={20} />
+        <span className="bottom-nav-label">Menu</span>
+      </button>
     </nav>
   );
 }

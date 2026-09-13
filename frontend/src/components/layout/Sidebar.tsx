@@ -11,6 +11,7 @@ import {
   LogOut,
   CheckCircle2,
   Sparkles,
+  History,
 } from "lucide-react";
 import { useAuthStore } from "@/lib/auth";
 import { useDungeonToday } from "@/hooks/useDungeon";
@@ -40,6 +41,7 @@ const navGroups: NavGroup[] = [
     items: [
       { path: "/statistics", label: "Statistics", icon: BarChart3 },
       { path: "/achievements", label: "Achievement", icon: Trophy },
+      { path: "/history", label: "Riwayat Aktivitas", icon: History },
     ],
   },
   {
