@@ -1,13 +1,11 @@
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { Timer, Play, Pause, RotateCcw, Check, Volume2, CloudRain, Waves, Sparkles } from "lucide-react";
 import { useQuests } from "@/hooks/useQuests";
 import { useCreateFocusSession, useFocusSessions } from "@/hooks/useFocusSessions";
-import { sound } from "@/lib/audio";
 import { useNotificationStore } from "@/lib/notifications";
+import { usePomodoroStore, setOnPomodoroComplete } from "@/lib/pomodoro";
 import PanelTitle from "@/components/ui/PanelTitle";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
-
-type AmbientType = "none" | "rain" | "brown-noise" | "dungeon";
 
 export default function FocusSessionPage() {
   const { data: questData, isLoading: isQuestsLoading } = useQuests();
@@ -15,93 +13,94 @@ export default function FocusSessionPage() {
   const createSessionMutation = useCreateFocusSession();
   const { showToast, sendBrowserNotification } = useNotificationStore();
 
-  const [duration, setDuration] = useState(25); // minutes
-  const [timeLeft, setTimeLeft] = useState(25 * 60); // seconds
-  const [isRunning, setIsRunning] = useState(false);
-  const [ambientSound, setAmbientSound] = useState<AmbientType>("none");
-  const [selectedQuest, setSelectedQuest] = useState<{ id: number | null; title: string }>({
-    id: null,
-    title: "General Focus",
-  });
+  const {
+    duration,
+    timeLeft,
+    isRunning,
+    ambientSound,
+    selectedQuest,
+    startTimer,
+    pauseTimer,
+    resetTimer,
+    setDuration,
+    setAmbientSound,
+    setSelectedQuest,
+  } = usePomodoroStore();
 
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const questRef = useRef(selectedQuest);
+  const durationRef = useRef(duration);
+  questRef.current = selectedQuest;
+  durationRef.current = duration;
 
+  // Register completion handler to global store once
   useEffect(() => {
-    setTimeLeft(duration * 60);
-  }, [duration]);
+    setOnPomodoroComplete(() => {
+      const q = questRef.current;
+      const d = durationRef.current;
 
-  // Handle ambient sound playback based on timer state
-  useEffect(() => {
-    if (isRunning && ambientSound !== "none") {
-      sound.startAmbient(ambientSound);
-    } else {
-      sound.stopAmbient();
-    }
-    return () => {
-      sound.stopAmbient();
-    };
-  }, [isRunning, ambientSound]);
+      showToast({
+        type: "focus",
+        title: "Sesi Fokus Selesai!",
+        message: `Hebat! Kamu fokus selama ${d} menit pada "${q.title}".`,
+        exp: d,
+      });
+      sendBrowserNotification(
+        "Sesi Fokus Selesai!",
+        `Fokus ${d} menit selesai! Waktunya istirahat sejenak.`
+      );
 
-  useEffect(() => {
-    if (isRunning) {
-      intervalRef.current = setInterval(() => {
-        setTimeLeft((prev) => {
-          if (prev <= 1) {
-            clearInterval(intervalRef.current!);
-            setIsRunning(false);
-            handleSessionComplete();
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-    } else if (intervalRef.current) {
-      clearInterval(intervalRef.current);
-    }
-
-    return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
-    };
-  }, [isRunning]);
-
-  const handleSessionComplete = () => {
-    setIsRunning(false);
-
-    // Instantly notify and play sound
-    showToast({
-      type: "focus",
-      title: "Sesi Fokus Selesai!",
-      message: `Hebat! Kamu fokus selama ${duration} menit pada "${selectedQuest.title}".`,
-      exp: duration,
-    });
-    sendBrowserNotification(
-      "Sesi Fokus Selesai!",
-      `Fokus ${duration} menit selesai! Waktunya istirahat sejenak.`
-    );
-
-    createSessionMutation.mutate(
-      {
-        quest_id: selectedQuest.id,
-        quest_title: selectedQuest.title,
-        duration_minutes: duration,
-      },
-      {
-        onError: (err: any) => {
-          const msg = err?.response?.data?.message || "Gagal mencatat sesi fokus.";
-          showToast({
-            type: "info",
-            title: "Gagal Catat Sesi",
-            message: msg,
-          });
+      createSessionMutation.mutate(
+        {
+          quest_id: q.id,
+          quest_title: q.title,
+          duration_minutes: d,
         },
-      }
-    );
-    setTimeLeft(duration * 60);
-  };
+        {
+          onError: (err: any) => {
+            const msg = err?.response?.data?.message || "Gagal mencatat sesi fokus.";
+            showToast({
+              type: "info",
+              title: "Gagal Catat Sesi",
+              message: msg,
+            });
+          },
+        }
+      );
+    });
+  }, []);
 
   const handleForceComplete = () => {
     if (window.confirm("Selesaikan sesi fokus sekarang secara manual?")) {
-      handleSessionComplete();
+      resetTimer();
+
+      showToast({
+        type: "focus",
+        title: "Sesi Fokus Selesai!",
+        message: `Hebat! Kamu fokus selama ${duration} menit pada "${selectedQuest.title}".`,
+        exp: duration,
+      });
+      sendBrowserNotification(
+        "Sesi Fokus Selesai!",
+        `Fokus ${duration} menit selesai! Waktunya istirahat sejenak.`
+      );
+
+      createSessionMutation.mutate(
+        {
+          quest_id: selectedQuest.id,
+          quest_title: selectedQuest.title,
+          duration_minutes: duration,
+        },
+        {
+          onError: (err: any) => {
+            const msg = err?.response?.data?.message || "Gagal mencatat sesi fokus.";
+            showToast({
+              type: "info",
+              title: "Gagal Catat Sesi",
+              message: msg,
+            });
+          },
+        }
+      );
     }
   };
 
@@ -135,21 +134,23 @@ export default function FocusSessionPage() {
           </div>
         </div>
         <div className="timer-controls">
-          <button className="primary-btn-glow" onClick={() => setIsRunning(!isRunning)}>
+          <button
+            type="button"
+            className="primary-btn-glow"
+            onClick={isRunning ? pauseTimer : startTimer}
+          >
             {isRunning ? <Pause size={18} /> : <Play size={18} />}
             {isRunning ? "Pause" : "Start"}
           </button>
           <button
+            type="button"
             className="secondary-btn-glass"
-            onClick={() => {
-              setIsRunning(false);
-              setTimeLeft(duration * 60);
-            }}
+            onClick={resetTimer}
           >
             <RotateCcw size={18} /> Reset
           </button>
           {isRunning && (
-            <button className="primary" onClick={handleForceComplete}>
+            <button type="button" className="primary" onClick={handleForceComplete}>
               <Check size={18} /> Selesai
             </button>
           )}

@@ -1568,21 +1568,33 @@ input[type="range"] {
   align-items: center;
   justify-content: center;
   gap: 20px;
-  background: radial-gradient(circle at center, rgba(47, 128, 237, 0.06), transparent 22rem), #282a31;
+  background: radial-gradient(circle at center, rgba(0, 229, 255, 0.08), transparent 22rem), #161822;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+  position: relative;
+  overflow: hidden;
 }
 
-.focus-stage strong {
-  font-size: clamp(5rem, 15vw, 8rem);
+.focus-stage strong,
+.timer-countdown {
+  font-size: clamp(4.5rem, 13vw, 7.5rem);
   line-height: 1;
-  font-weight: 900;
-  color: #ffffff;
+  font-weight: 800;
+  color: #f8fafc;
   letter-spacing: -0.03em;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  transition: color 0.2s ease;
 }
 
-.focus-stage p {
+.focus-stage p,
+.timer-quest-title {
   margin: 0;
-  color: #8e929d;
-  font-weight: 700;
+  color: #94a3b8;
+  font-weight: 600;
+  font-size: 1.05rem;
+  letter-spacing: -0.01em;
 }
 
 .timer-ring {
@@ -1590,13 +1602,38 @@ input[type="range"] {
   aspect-ratio: 1;
   display: grid;
   place-items: center;
-  border: 3px solid rgba(47, 128, 237, 0.2);
+  border: 3px solid rgba(0, 229, 255, 0.25);
   border-radius: 999px;
+  background: rgba(0, 229, 255, 0.03);
+  color: #00e5ff;
   transition: all 0.3s ease;
 }
 
 .timer-ring-wrapper {
   margin: 16px 0;
+}
+
+/* Light Theme Overrides for Pomodoro Chamber */
+.light .focus-stage {
+  background: radial-gradient(circle at center, rgba(2, 132, 199, 0.06), transparent 22rem), #ffffff;
+  border-color: rgba(0, 0, 0, 0.08);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.04);
+}
+
+.light .focus-stage strong,
+.light .timer-countdown {
+  color: #0f172a !important;
+}
+
+.light .focus-stage p,
+.light .timer-quest-title {
+  color: #475569;
+}
+
+.light .timer-ring {
+  border-color: rgba(2, 132, 199, 0.35);
+  background: rgba(2, 132, 199, 0.05);
+  color: #0284c7;
 }
 
 .session-list,
