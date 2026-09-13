@@ -156,7 +156,7 @@ export default function FocusSessionPage() {
         <p className="timer-quest-title">{selectedQuest.title}</p>
         <div className="timer-ring-wrapper">
           <div className="timer-ring">
-            <Timer size={72} className={isRunning ? "pulse-animation" : ""} />
+            <Timer size={44} className={isRunning ? "pulse-animation" : ""} />
           </div>
         </div>
         <div className="timer-controls">
@@ -203,8 +203,22 @@ export default function FocusSessionPage() {
                   ))}
             </select>
           </label>
-          <label>
-            Durasi: {duration} menit
+          <div className="duration-picker-group">
+            <div className="duration-header">
+              <span>Durasi Fokus: <strong>{duration} menit</strong></span>
+              <div className="duration-quick-chips">
+                {[15, 25, 45, 60].map((m) => (
+                  <button
+                    key={m}
+                    type="button"
+                    className={`chip-btn ${duration === m ? "active" : ""}`}
+                    onClick={() => setDuration(m)}
+                  >
+                    {m}m
+                  </button>
+                ))}
+              </div>
+            </div>
             <input
               type="range"
               min="1"
@@ -213,7 +227,7 @@ export default function FocusSessionPage() {
               value={duration}
               onChange={(e) => setDuration(Number(e.target.value))}
             />
-          </label>
+          </div>
 
           {/* Ambient Sound Selector */}
           <div className="ambient-sound-selector">
