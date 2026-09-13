@@ -16,7 +16,7 @@ class StoreFocusSessionRequest extends FormRequest
         return [
             'quest_id' => 'nullable|integer|exists:quests,id',
             'quest_title' => 'nullable|string|max:255',
-            'duration_minutes' => 'required|integer|min:5|max:120',
+            'duration_minutes' => 'required|integer|min:1|max:180',
         ];
     }
 }

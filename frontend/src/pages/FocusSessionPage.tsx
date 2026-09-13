@@ -4,6 +4,7 @@ import { useQuests } from "@/hooks/useQuests";
 import { useCreateFocusSession, useFocusSessions } from "@/hooks/useFocusSessions";
 import { useNotificationStore } from "@/lib/notifications";
 import { usePomodoroStore, setOnPomodoroComplete } from "@/lib/pomodoro";
+import { sound } from "@/lib/audio";
 import PanelTitle from "@/components/ui/PanelTitle";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 
@@ -69,26 +70,51 @@ export default function FocusSessionPage() {
     });
   }, []);
 
+  const elapsedSeconds = Math.max(0, duration * 60 - timeLeft);
+  const elapsedMinutes = Math.floor(elapsedSeconds / 60);
+  const hasStarted = isRunning || timeLeft < duration * 60;
+
   const handleForceComplete = () => {
-    if (window.confirm("Selesaikan sesi fokus sekarang secara manual?")) {
+    if (elapsedSeconds < 60) {
+      if (
+        window.confirm(
+          `Kamu baru fokus selama ${elapsedSeconds} detik (kurang dari 1 menit). Hentikan sesi tanpa mencatat riwayat?`
+        )
+      ) {
+        resetTimer();
+        showToast({
+          type: "info",
+          title: "Sesi Dibatalkan",
+          message: "Sesi fokus kurang dari 1 menit tidak dicatat ke riwayat.",
+        });
+      }
+      return;
+    }
+
+    if (
+      window.confirm(
+        `Selesaikan sesi fokus sekarang? Durasi tercatat: ${elapsedMinutes} menit (dari target ${duration} menit).`
+      )
+    ) {
       resetTimer();
+      sound.playTimerFinish();
 
       showToast({
         type: "focus",
         title: "Sesi Fokus Selesai!",
-        message: `Hebat! Kamu fokus selama ${duration} menit pada "${selectedQuest.title}".`,
-        exp: duration,
+        message: `Hebat! Kamu fokus selama ${elapsedMinutes} menit pada "${selectedQuest.title}".`,
+        exp: elapsedMinutes,
       });
       sendBrowserNotification(
         "Sesi Fokus Selesai!",
-        `Fokus ${duration} menit selesai! Waktunya istirahat sejenak.`
+        `Fokus ${elapsedMinutes} menit selesai! Waktunya istirahat sejenak.`
       );
 
       createSessionMutation.mutate(
         {
           quest_id: selectedQuest.id,
           quest_title: selectedQuest.title,
-          duration_minutes: duration,
+          duration_minutes: elapsedMinutes,
         },
         {
           onError: (err: any) => {
@@ -149,9 +175,9 @@ export default function FocusSessionPage() {
           >
             <RotateCcw size={18} /> Reset
           </button>
-          {isRunning && (
+          {hasStarted && (
             <button type="button" className="primary" onClick={handleForceComplete}>
-              <Check size={18} /> Selesai
+              <Check size={18} /> Selesai ({elapsedMinutes > 0 ? `${elapsedMinutes}m` : `${elapsedSeconds}s`})
             </button>
           )}
         </div>
