@@ -24,6 +24,31 @@ export function useLogin() {
   });
 }
 
+export function useRegister() {
+  const setAuth = useAuthStore((s) => s.setAuth);
+  const setProfile = useAuthStore((s) => s.setProfile);
+
+  return useMutation({
+    mutationFn: async (data: { name: string; email: string; password: string }) => {
+      const res = await api.post("/register", data);
+      return res.data;
+    },
+    onSuccess: async (data) => {
+      setAuth(data.token, data.user);
+      if (data.profile) {
+        setProfile(data.profile);
+      } else {
+        const me = await api.get("/me", {
+          headers: { Authorization: `Bearer ${data.token}` },
+        });
+        if (me.data.profile) {
+          setProfile(me.data.profile);
+        }
+      }
+    },
+  });
+}
+
 export function useLogout() {
   const logout = useAuthStore((s) => s.logout);
 

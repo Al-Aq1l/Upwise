@@ -44,6 +44,59 @@ class AuthController extends Controller
         ]);
     }
 
+    public function register(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users,email',
+            'password' => 'required|string|min:6',
+        ], [
+            'name.required' => 'Nama lengkap wajib diisi.',
+            'email.required' => 'Email wajib diisi.',
+            'email.email' => 'Format email tidak valid.',
+            'email.unique' => 'Email ini sudah terdaftar. Silakan masuk atau gunakan email lain.',
+            'password.required' => 'Password wajib diisi.',
+            'password.min' => 'Password minimal 6 karakter.',
+        ]);
+
+        $user = User::create([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'title' => 'Novice Hunter',
+            'password' => $validated['password'],
+        ]);
+
+        $profile = HunterProfile::create([
+            'user_id' => $user->id,
+            'exp' => 0,
+            'streak' => 0,
+            'longest_streak' => 0,
+            'battle_power' => 0,
+            'level' => 1,
+            'rank' => 'E',
+            'theme' => 'dark',
+            'notifications' => [
+                'checkIn' => true,
+                'checkOut' => true,
+                'quest' => false,
+            ],
+        ]);
+
+        $token = $user->createToken('auth-token')->plainTextToken;
+
+        return response()->json([
+            'token' => $token,
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'title' => $user->title,
+            ],
+            'profile' => $profile,
+            'message' => 'Akun berhasil dibuat!',
+        ], 201);
+    }
+
     public function logout(Request $request): JsonResponse
     {
         $request->user()->currentAccessToken()->delete();

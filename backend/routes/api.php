@@ -20,6 +20,7 @@ use App\Http\Controllers\Api\HistoryController;
 
 // Public routes
 Route::post('/login', [AuthController::class, 'login'])->name('login');
+Route::post('/register', [AuthController::class, 'register'])->name('register');
 
 // Protected routes (require Sanctum token)
 Route::middleware('auth:sanctum')->group(function () {
