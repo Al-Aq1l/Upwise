@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import {
   History,
   Timer,
@@ -12,6 +12,8 @@ import {
   Flame,
   ArrowUpRight,
   Filter,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { useHistory } from "@/hooks/useHistory";
 import PanelTitle from "@/components/ui/PanelTitle";
@@ -24,6 +26,8 @@ export default function HistoryPage() {
   const { data, isLoading } = useHistory();
   const [activeTab, setActiveTab] = useState<FilterTab>("all");
   const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
   const unifiedTimeline = useMemo(() => {
     if (!data) return [];
@@ -129,6 +133,43 @@ export default function HistoryPage() {
       return matchesTab && matchesSearch;
     });
   }, [unifiedTimeline, activeTab, searchQuery]);
+
+  // Reset to page 1 whenever filter tab or search query changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [activeTab, searchQuery]);
+
+  // Pagination calculation
+  const totalItems = filteredItems.length;
+  const totalPages = Math.max(1, Math.ceil(totalItems / itemsPerPage));
+  const safePage = Math.min(currentPage, totalPages);
+  const startIndex = (safePage - 1) * itemsPerPage;
+  const endIndex = Math.min(startIndex + itemsPerPage, totalItems);
+
+  const paginatedItems = useMemo(() => {
+    return filteredItems.slice(startIndex, endIndex);
+  }, [filteredItems, startIndex, endIndex]);
+
+  const handlePageChange = (newPage: number) => {
+    setCurrentPage(newPage);
+    const panel = document.querySelector(".history-main-panel");
+    if (panel) {
+      panel.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
+
+  const getPaginationRange = (current: number, total: number) => {
+    if (total <= 5) {
+      return Array.from({ length: total }, (_, i) => i + 1);
+    }
+    if (current <= 3) {
+      return [1, 2, 3, 4, "...", total];
+    }
+    if (current >= total - 2) {
+      return [1, "...", total - 3, total - 2, total - 1, total];
+    }
+    return [1, "...", current - 1, current, current + 1, "...", total];
+  };
 
   if (isLoading) return <LoadingSpinner />;
 
@@ -250,10 +291,10 @@ export default function HistoryPage() {
           </button>
         </div>
 
-        {/* Timeline List */}
+        {/* Timeline List (Paginated) */}
         <div className="history-timeline-list">
-          {filteredItems.length > 0 ? (
-            filteredItems.map((item) => (
+          {paginatedItems.length > 0 ? (
+            paginatedItems.map((item) => (
               <div key={item.id} className={`history-row type-${item.type}`}>
                 <div className="history-icon-col">{getTypeIcon(item.type)}</div>
 
@@ -279,6 +320,74 @@ export default function HistoryPage() {
             </div>
           )}
         </div>
+
+        {/* Pagination Bar */}
+        {totalItems > 0 && (
+          <div className="history-pagination-row">
+            <div className="history-pagination-info">
+              Menampilkan <strong>{totalItems === 0 ? 0 : startIndex + 1} - {endIndex}</strong> dari <strong>{totalItems}</strong> aktivitas
+            </div>
+
+            <div className="history-pagination-controls">
+              <div className="history-page-size-select">
+                <span>Tampilkan:</span>
+                <select
+                  value={itemsPerPage}
+                  onChange={(e) => {
+                    setItemsPerPage(Number(e.target.value));
+                    setCurrentPage(1);
+                  }}
+                >
+                  <option value={10}>10</option>
+                  <option value={20}>20</option>
+                  <option value={50}>50</option>
+                </select>
+              </div>
+
+              <button
+                type="button"
+                className="history-page-btn"
+                disabled={safePage <= 1}
+                onClick={() => handlePageChange(safePage - 1)}
+                title="Halaman Sebelumnya"
+                aria-label="Sebelumnya"
+              >
+                <ChevronLeft size={16} />
+              </button>
+
+              {getPaginationRange(safePage, totalPages).map((p, idx) => {
+                if (p === "...") {
+                  return (
+                    <span key={`ellipsis-${idx}`} className="history-page-ellipsis">
+                      ...
+                    </span>
+                  );
+                }
+                return (
+                  <button
+                    key={`page-${p}`}
+                    type="button"
+                    className={`history-page-btn ${safePage === p ? "active" : ""}`}
+                    onClick={() => handlePageChange(Number(p))}
+                  >
+                    {p}
+                  </button>
+                );
+              })}
+
+              <button
+                type="button"
+                className="history-page-btn"
+                disabled={safePage >= totalPages}
+                onClick={() => handlePageChange(safePage + 1)}
+                title="Halaman Berikutnya"
+                aria-label="Berikutnya"
+              >
+                <ChevronRight size={16} />
+              </button>
+            </div>
+          </div>
+        )}
       </section>
     </div>
   );
