@@ -1407,13 +1407,15 @@ button {
   display: grid;
   gap: 8px;
   align-items: end;
-  height: 180px;
-  padding-top: 20px;
-  min-width: 100%;
+  height: 175px;
+  padding-top: 14px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .mini-chart-scroll-wrapper.has-scroll .mini-chart-track {
-  min-width: 640px;
+  min-width: max-content;
+  padding-right: 14px;
 }
 
 .mini-chart-bar-container {
@@ -2805,8 +2807,7 @@ input[type="range"] {
   .calendar-strip-panel,
   .full-year-heatmap-panel,
   .heatmap-panel,
-  .achievement-panel,
-  .statistics-grid .span-2 {
+  .achievement-panel {
     grid-column: span 1 !important;
     width: 100%;
     max-width: 100%;
@@ -3141,15 +3142,72 @@ input[type="range"] {
 
   .statistics-grid .metric {
     grid-column: span 1 !important;
-    padding: 14px 12px;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    padding: 14px 12px !important;
+    gap: 8px !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
   }
 
+  .statistics-grid .metric-header {
+    width: 34px !important;
+    height: 34px !important;
+    border-radius: 9px !important;
+    margin-bottom: 2px !important;
+  }
+
+  .statistics-grid .metric-header svg {
+    width: 17px !important;
+    height: 17px !important;
+  }
+
+  .statistics-grid .metric-info-wrapper {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 2px !important;
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .statistics-grid .metric-label {
+    font-size: 0.7rem !important;
+    font-weight: 750 !important;
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    line-height: 1.25 !important;
+    letter-spacing: 0.03em !important;
+    color: #94a3b8 !important;
+  }
+
+  .statistics-grid .metric-value {
+    font-size: 1.45rem !important;
+    font-weight: 900 !important;
+    line-height: 1.15 !important;
+    margin: 1px 0 !important;
+  }
+
+  .statistics-grid .metric-detail {
+    font-size: 0.7rem !important;
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    line-height: 1.3 !important;
+    color: #64748b !important;
+    margin-top: 1px !important;
+  }
+
+  .statistics-grid .panel,
+  .statistics-grid .chart-card-panel,
+  .statistics-grid .full-year-heatmap-panel,
   .statistics-grid .span-2,
-  .statistics-grid .span-4,
-  .chart-card-panel,
-  .full-year-heatmap-panel {
-    grid-column: span 2 !important;
-    width: 100%;
+  .statistics-grid .span-4 {
+    grid-column: 1 / -1 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
   }
 
   .full-year-heatmap-grid {
@@ -3339,11 +3397,85 @@ input[type="range"] {
   .span-4,
   .hunter-status-card,
   .hero-band,
-  .full-year-heatmap-panel,
   .calendar-strip-panel,
-  .dashboard-metrics-grid,
-  .statistics-grid .span-2 {
+  .dashboard-metrics-grid {
     grid-column: span 1 !important;
+  }
+
+  /* ---- Statistics Grid Mobile (<= 480px) ---- */
+  .statistics-grid {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 10px !important;
+  }
+
+  .statistics-grid .metric {
+    grid-column: span 1 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    padding: 12px 10px !important;
+    gap: 6px !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+  }
+
+  .statistics-grid .metric-header {
+    width: 30px !important;
+    height: 30px !important;
+    border-radius: 8px !important;
+    margin-bottom: 2px !important;
+  }
+
+  .statistics-grid .metric-header svg {
+    width: 15px !important;
+    height: 15px !important;
+  }
+
+  .statistics-grid .metric-info-wrapper {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 2px !important;
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .statistics-grid .metric-label {
+    font-size: 0.66rem !important;
+    font-weight: 750 !important;
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    line-height: 1.2 !important;
+    letter-spacing: 0.02em !important;
+    color: #94a3b8 !important;
+  }
+
+  .statistics-grid .metric-value {
+    font-size: 1.35rem !important;
+    font-weight: 900 !important;
+    line-height: 1.15 !important;
+    margin: 1px 0 !important;
+  }
+
+  .statistics-grid .metric-detail {
+    font-size: 0.66rem !important;
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    line-height: 1.25 !important;
+    color: #64748b !important;
+    margin: 0 !important;
+  }
+
+  .statistics-grid .panel,
+  .statistics-grid .chart-card-panel,
+  .statistics-grid .full-year-heatmap-panel,
+  .statistics-grid .span-2,
+  .statistics-grid .span-4 {
+    grid-column: 1 / -1 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
   }
 
   /* ---- Calendar Strip ---- */

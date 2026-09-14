@@ -57,13 +57,16 @@ export default function MiniChart({ data, metric, className = "", unit }: MiniCh
       )}
 
       <div
-        className={`mini-chart-scroll-wrapper ${data.length > 10 ? "has-scroll" : ""}`}
+        className={`mini-chart-scroll-wrapper ${data.length > 7 ? "has-scroll" : ""}`}
         ref={scrollRef}
       >
         <div
           className="mini-chart-track"
           style={{
-            gridTemplateColumns: `repeat(${data.length}, minmax(${data.length > 7 ? "24px" : "1fr"}, 1fr))`,
+            gridTemplateColumns:
+              data.length > 7
+                ? `repeat(${data.length}, minmax(32px, 1fr))`
+                : `repeat(${data.length}, minmax(0, 1fr))`,
           }}
         >
           {data.map((item, index) => {
