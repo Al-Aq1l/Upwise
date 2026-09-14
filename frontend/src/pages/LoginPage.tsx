@@ -3,8 +3,8 @@ import { Shield, ChevronRight } from "lucide-react";
 import { useLogin } from "@/hooks/useAuth";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("hunter@solo.local");
+  const [password, setPassword] = useState("hunter123");
   const loginMutation = useLogin();
 
   const handleSubmit = (e: React.FormEvent) => {

@@ -1327,45 +1327,184 @@ button {
   background: linear-gradient(90deg, #2f80ed, #00d2ff);
 }
 
-.mini-chart {
-  height: 200px;
+.mini-chart-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+.mini-chart-tooltip-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 10px;
+  background: rgba(56, 189, 248, 0.1);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  font-size: 0.82rem;
+  color: #f8fafc;
+  flex-wrap: wrap;
+  animation: fadeIn 0.15s ease;
+}
+
+.light .mini-chart-tooltip-banner {
+  background: #f0f9ff;
+  border-color: rgba(2, 132, 199, 0.25);
+  color: #0f172a;
+}
+
+.tooltip-date {
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+.light .tooltip-date {
+  color: #64748b;
+}
+
+.tooltip-val {
+  color: #38bdf8;
+  font-weight: 800;
+}
+
+.light .tooltip-val {
+  color: #0284c7;
+}
+
+.tooltip-sub {
+  font-size: 0.75rem;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.06);
+  color: #cbd5e1;
+}
+
+.light .tooltip-sub {
+  background: #e2e8f0;
+  color: #334155;
+}
+
+.mini-chart-tooltip-placeholder {
+  padding: 6px 4px;
+  color: #64748b;
+  font-size: 0.74rem;
+  font-style: italic;
+}
+
+.mini-chart-scroll-wrapper {
+  width: 100%;
+  overflow: visible;
+}
+
+.mini-chart-scroll-wrapper.has-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 6px;
+}
+
+.mini-chart-track {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 12px;
+  gap: 8px;
   align-items: end;
+  height: 180px;
+  padding-top: 20px;
+  min-width: 100%;
+}
+
+.mini-chart-scroll-wrapper.has-scroll .mini-chart-track {
+  min-width: 640px;
 }
 
 .mini-chart-bar-container {
   min-width: 0;
   height: 100%;
-  display: grid;
-  grid-template-rows: 1fr auto;
-  gap: 10px;
-  align-items: end;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  cursor: pointer;
+  padding: 4px 2px;
+  border-radius: 8px;
+  transition: background 0.15s ease;
+}
+
+.mini-chart-bar-container:hover,
+.mini-chart-bar-container.selected {
+  background: rgba(56, 189, 248, 0.08);
+}
+
+.light .mini-chart-bar-container:hover,
+.light .mini-chart-bar-container.selected {
+  background: rgba(2, 132, 199, 0.08);
+}
+
+.mini-chart-val-label {
+  font-size: 0.68rem;
+  font-weight: 800;
+  color: #38bdf8;
+  height: 16px;
+  line-height: 16px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.light .mini-chart-val-label {
+  color: #0284c7;
 }
 
 .mini-chart-bar-wrapper {
-  height: 100%;
+  width: 100%;
+  max-width: 28px;
+  height: 130px;
   display: flex;
   align-items: flex-end;
-  background: rgba(255, 255, 255, 0.02);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 6px;
   overflow: hidden;
 }
 
-.mini-chart span {
-  width: 100%;
-  min-height: 8px;
-  border-radius: 6px;
-  background: linear-gradient(180deg, #2f80ed, rgba(47, 128, 237, 0.3));
-  transition: height 0.3s ease;
+.light .mini-chart-bar-wrapper {
+  background: #f1f5f9;
+  border-color: rgba(0, 0, 0, 0.06);
 }
 
-.mini-chart b {
+.bar-fill {
+  width: 100%;
+  border-radius: 5px;
+  transition: height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.bar-fill.has-data {
+  background: linear-gradient(180deg, #38bdf8, #0284c7);
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
+}
+
+.bar-fill.zero-data {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.light .bar-fill.zero-data {
+  background: #e2e8f0;
+}
+
+.mini-chart-bar-container.selected .bar-fill.has-data {
+  background: linear-gradient(180deg, #fbbf24, #f59e0b);
+  box-shadow: 0 0 14px rgba(251, 191, 36, 0.5);
+}
+
+.mini-chart-date-label {
   text-align: center;
-  color: #8e929d;
-  font-size: 0.75rem;
+  color: #94a3b8;
+  font-size: 0.72rem;
   font-weight: 700;
+  margin-top: 6px;
+  white-space: nowrap;
+}
+
+.light .mini-chart-date-label {
+  color: #64748b;
 }
 
 .heatmap {
@@ -2991,33 +3130,30 @@ input[type="range"] {
   .period-filter-row button {
     flex: 1;
     min-width: auto;
+    padding: 10px 12px;
+    font-size: 0.82rem;
   }
 
-  .statistics-grid .span-2 {
+  .statistics-grid {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 12px;
+  }
+
+  .statistics-grid .metric {
+    grid-column: span 1 !important;
+    padding: 14px 12px;
+  }
+
+  .statistics-grid .span-2,
+  .statistics-grid .span-4,
+  .chart-card-panel,
+  .full-year-heatmap-panel {
     grid-column: span 2 !important;
+    width: 100%;
   }
 
   .full-year-heatmap-grid {
-    gap: 2px;
-    padding: 4px 0;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  .heatmap-cell {
-    min-width: 8px;
-    border-radius: 2px;
-  }
-
-  .heatmap-legend {
-    font-size: 0.7rem;
-    gap: 4px;
-    margin-top: 8px;
-  }
-
-  .heatmap-legend span:not(:first-child):not(:last-child) {
-    width: 10px;
-    height: 10px;
+    padding: 6px 0;
   }
 
   /* ---- Achievements Page ---- */
@@ -3824,34 +3960,145 @@ input[type="range"] {
 /* Full Year Heatmap styling */
 .full-year-heatmap-panel {
   grid-column: span 4 !important;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.heatmap-header-flex {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.heatmap-quick-summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.summary-pill {
+  font-size: 0.76rem;
+  padding: 4px 10px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #94a3b8;
+}
+
+.summary-pill strong {
+  color: #38bdf8;
+  font-weight: 800;
+}
+
+.light .summary-pill {
+  background: #f1f5f9;
+  border-color: rgba(0, 0, 0, 0.08);
+  color: #475569;
+}
+
+.light .summary-pill strong {
+  color: #0284c7;
+}
+
+.heatmap-selected-inspector {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: rgba(56, 189, 248, 0.1);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  animation: fadeIn 0.15s ease;
+}
+
+.light .heatmap-selected-inspector {
+  background: #f0f9ff;
+  border-color: rgba(2, 132, 199, 0.25);
+}
+
+.inspector-text strong {
+  display: block;
+  font-size: 0.85rem;
+  color: #f8fafc;
+}
+
+.light .inspector-text strong {
+  color: #0f172a;
+}
+
+.inspector-text span {
+  display: block;
+  font-size: 0.75rem;
+  color: #38bdf8;
+  margin-top: 1px;
+}
+
+.light .inspector-text span {
+  color: #0284c7;
+}
+
+.heatmap-hint-text {
+  font-size: 0.74rem;
+  color: #64748b;
+  margin: 0;
+  font-style: italic;
+}
+
+.heatmap-scroll-container {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 8px 0;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+}
+
+.heatmap-scroll-container::-webkit-scrollbar {
+  height: 5px;
+}
+
+.heatmap-scroll-container::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
 }
 
 .full-year-heatmap-grid {
   display: grid;
-  grid-template-columns: repeat(53, 1fr);
-  gap: 3px;
-  overflow-x: auto;
-  padding: 8px 0;
+  grid-template-rows: repeat(7, 13px);
+  grid-auto-flow: column;
+  grid-auto-columns: 13px;
+  gap: 3.5px;
+  min-width: 760px;
+  padding: 4px 0;
 }
 
 .heatmap-cell {
-  aspect-ratio: 1;
-  border-radius: 2px;
+  width: 13px;
+  height: 13px;
+  border-radius: 3px;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.04);
-  min-width: 10px;
-  transition: transform 0.1s ease;
+  padding: 0;
+  cursor: pointer;
+  transition: all 0.15s ease;
 }
 
-.heatmap-cell:hover {
-  transform: scale(1.3);
+.heatmap-cell:hover,
+.heatmap-cell.selected-cell {
+  transform: scale(1.35);
   z-index: 10;
+  box-shadow: 0 0 8px rgba(56, 189, 248, 0.6);
+  border-color: #38bdf8 !important;
 }
 
-.heatmap-cell.h1 { background: rgba(14, 165, 233, 0.3); border-color: rgba(14, 165, 233, 0.4); }
-.heatmap-cell.h2 { background: rgba(14, 165, 233, 0.55); border-color: rgba(14, 165, 233, 0.65); }
-.heatmap-cell.h3 { background: rgba(14, 165, 233, 0.8); border-color: rgba(14, 165, 233, 0.9); }
-.heatmap-cell.h4 { background: #0284c7; border-color: #38bdf8; }
+.heatmap-cell.h1 { background: rgba(14, 165, 233, 0.35); border-color: rgba(14, 165, 233, 0.45); }
+.heatmap-cell.h2 { background: rgba(14, 165, 233, 0.6); border-color: rgba(14, 165, 233, 0.7); }
+.heatmap-cell.h3 { background: rgba(14, 165, 233, 0.85); border-color: rgba(14, 165, 233, 0.95); }
+.heatmap-cell.h4 { background: #0284c7; border-color: #38bdf8; box-shadow: 0 0 6px rgba(56, 189, 248, 0.4); }
 
 .light .heatmap-cell {
   background: #e2e8f0;
@@ -3868,8 +4115,8 @@ input[type="range"] {
   align-items: center;
   justify-content: flex-end;
   gap: 6px;
-  margin-top: 12px;
-  font-size: 0.8rem;
+  margin-top: 8px;
+  font-size: 0.76rem;
   color: #8e929d;
 }
 
@@ -3877,17 +4124,24 @@ input[type="range"] {
   color: #64748b;
 }
 
-.heatmap-legend span:not(:first-child):not(:last-child) {
-  width: 12px;
-  height: 12px;
+.legend-box {
+  width: 11px;
+  height: 11px;
   border-radius: 3px;
+  display: inline-block;
 }
 
-.heatmap-legend .h0 { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.04); }
-.heatmap-legend .h1 { background: rgba(14, 165, 233, 0.3); }
-.heatmap-legend .h2 { background: rgba(14, 165, 233, 0.55); }
-.heatmap-legend .h3 { background: rgba(14, 165, 233, 0.8); }
-.heatmap-legend .h4 { background: #0284c7; }
+.legend-box.h0 { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.04); }
+.legend-box.h1 { background: rgba(14, 165, 233, 0.35); }
+.legend-box.h2 { background: rgba(14, 165, 233, 0.6); }
+.legend-box.h3 { background: rgba(14, 165, 233, 0.85); }
+.legend-box.h4 { background: #0284c7; }
+
+.light .legend-box.h0 { background: #e2e8f0; border: 1px solid rgba(0, 0, 0, 0.06); }
+.light .legend-box.h1 { background: #bae6fd; }
+.light .legend-box.h2 { background: #38bdf8; }
+.light .legend-box.h3 { background: #0284c7; }
+.light .legend-box.h4 { background: #0369a1; }
 
 .light .heatmap-legend .h0 { background: #e2e8f0; border: 1px solid rgba(0, 0, 0, 0.06); }
 .light .heatmap-legend .h1 { background: #bae6fd; }
