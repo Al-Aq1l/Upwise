@@ -6,8 +6,8 @@ export default function LoginPage() {
   const [mode, setMode] = useState<"login" | "register">("login");
   
   // Login fields
-  const [email, setEmail] = useState("hunter@solo.local");
-  const [password, setPassword] = useState("hunter123");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   // Register fields
   const [regName, setRegName] = useState("");
@@ -117,7 +117,8 @@ export default function LoginPage() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="hunter@solo.local"
+                  placeholder="nama@email.com"
+                  autoComplete="username"
                   required
                 />
               </label>
@@ -128,7 +129,8 @@ export default function LoginPage() {
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
+                  placeholder="Masukkan password Anda"
+                  autoComplete="current-password"
                   required
                 />
               </label>
