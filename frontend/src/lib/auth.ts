@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { clearUserCache } from "./queryClient";
 
 export type UserData = {
   id: number;
@@ -39,9 +40,10 @@ export const useAuthStore = create<AuthStore>((set) => ({
   profile: JSON.parse(localStorage.getItem("sl-profile") || "null"),
 
   setAuth: (token, user) => {
+    clearUserCache();
     localStorage.setItem("sl-token", token);
     localStorage.setItem("sl-user", JSON.stringify(user));
-    set({ token, user });
+    set({ token, user, profile: null });
   },
 
   setProfile: (profile) => {
@@ -63,19 +65,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
   },
 
   logout: () => {
-    localStorage.removeItem("sl-token");
-    localStorage.removeItem("sl-user");
-    localStorage.removeItem("sl-profile");
-    try {
-      const keysToRemove: string[] = [];
-      for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        if (key && (key.startsWith("sl-cache-") || key.startsWith("sl-"))) {
-          keysToRemove.push(key);
-        }
-      }
-      keysToRemove.forEach((k) => localStorage.removeItem(k));
-    } catch (e) {}
+    clearUserCache();
     set({ token: null, user: null, profile: null });
   },
 }));

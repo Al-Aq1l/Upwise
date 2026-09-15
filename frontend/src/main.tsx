@@ -18,38 +18,39 @@ import HistoryPage from "./pages/HistoryPage";
 import SettingsPage from "./pages/SettingsPage";
 
 import "./styles.css";
+import { queryClient } from "./lib/queryClient";
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      refetchOnWindowFocus: false,
-      staleTime: 0, // Immediately revalidates in background on mount while showing instant cached data
-      gcTime: 1000 * 60 * 60 * 24, // Cache preserved for 24 hours
-      retry: 1,
-    },
-  },
-});
-
-// 1. Synchronously hydrate cache from localStorage on app boot (Instant 0ms Hard Refresh)
+// 1. Synchronously hydrate cache from localStorage ONLY for the active authenticated user
 try {
-  for (let i = 0; i < localStorage.length; i++) {
-    const storageKey = localStorage.key(i);
-    if (storageKey && storageKey.startsWith("sl-cache-")) {
-      const queryKey = JSON.parse(storageKey.replace("sl-cache-", ""));
-      const raw = localStorage.getItem(storageKey);
-      if (raw) {
-        queryClient.setQueryData(queryKey, JSON.parse(raw));
+  const userRaw = localStorage.getItem("sl-user");
+  const activeUser = userRaw ? JSON.parse(userRaw) : null;
+  const activeUserId = activeUser?.id;
+
+  if (activeUserId) {
+    const prefix = `sl-cache-${activeUserId}-`;
+    for (let i = 0; i < localStorage.length; i++) {
+      const storageKey = localStorage.key(i);
+      if (storageKey && storageKey.startsWith(prefix)) {
+        const queryKey = JSON.parse(storageKey.slice(prefix.length));
+        const raw = localStorage.getItem(storageKey);
+        if (raw) {
+          queryClient.setQueryData(queryKey, JSON.parse(raw));
+        }
       }
     }
   }
 } catch (e) {}
 
-// 2. Automatically persist any successful query to localStorage
+// 2. Automatically persist any successful query scoped to the active user ID
 queryClient.getQueryCache().subscribe((event) => {
   if (event?.type === "updated" && event.action?.type === "success") {
     try {
-      const keyStr = JSON.stringify(event.query.queryKey);
-      localStorage.setItem(`sl-cache-${keyStr}`, JSON.stringify(event.query.state.data));
+      const userRaw = localStorage.getItem("sl-user");
+      const activeUser = userRaw ? JSON.parse(userRaw) : null;
+      if (activeUser?.id) {
+        const keyStr = JSON.stringify(event.query.queryKey);
+        localStorage.setItem(`sl-cache-${activeUser.id}-${keyStr}`, JSON.stringify(event.query.state.data));
+      }
     } catch (e) {}
   }
 });

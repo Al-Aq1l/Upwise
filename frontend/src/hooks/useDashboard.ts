@@ -37,21 +37,27 @@ export type DashboardData = {
 };
 
 export function useDashboard() {
+  const user = useAuthStore((s) => s.user);
   const setProfile = useAuthStore((s) => s.setProfile);
+  const userId = user?.id;
 
   return useQuery<DashboardData>({
-    queryKey: ["dashboard"],
+    queryKey: ["dashboard", userId],
+    enabled: !!userId,
     queryFn: async () => {
       const res = await api.get("/dashboard");
       if (res.data.profile) {
         setProfile(res.data.profile);
       }
-      localStorage.setItem("sl-dashboard-cache", JSON.stringify(res.data));
+      if (userId) {
+        localStorage.setItem(`sl-dashboard-cache-${userId}`, JSON.stringify(res.data));
+      }
       return res.data;
     },
     initialData: () => {
+      if (!userId) return undefined;
       try {
-        const cached = localStorage.getItem("sl-dashboard-cache");
+        const cached = localStorage.getItem(`sl-dashboard-cache-${userId}`);
         return cached ? JSON.parse(cached) : undefined;
       } catch {
         return undefined;

@@ -1,6 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import api from "@/lib/api";
 import { useAuthStore } from "@/lib/auth";
+import { clearUserCache } from "@/lib/queryClient";
 
 export function useLogin() {
   const setAuth = useAuthStore((s) => s.setAuth);
@@ -12,6 +13,7 @@ export function useLogin() {
       return res.data;
     },
     onSuccess: async (data) => {
+      clearUserCache();
       setAuth(data.token, data.user);
       // Fetch profile after login
       const me = await api.get("/me", {
@@ -34,6 +36,7 @@ export function useRegister() {
       return res.data;
     },
     onSuccess: async (data) => {
+      clearUserCache();
       setAuth(data.token, data.user);
       if (data.profile) {
         setProfile(data.profile);
@@ -57,6 +60,7 @@ export function useLogout() {
       await api.post("/logout");
     },
     onSettled: () => {
+      clearUserCache();
       logout();
     },
   });

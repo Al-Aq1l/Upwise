@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import api from "@/lib/api";
+import { useAuthStore } from "@/lib/auth";
 
 export type Quest = {
   id: number;
@@ -14,19 +15,23 @@ export type Quest = {
 };
 
 export function useQuests(date?: string) {
+  const user = useAuthStore((s) => s.user);
+  const userId = user?.id;
+
   return useQuery<{ quests: Quest[] }>({
-    queryKey: ["quests", date],
+    queryKey: ["quests", date, userId],
+    enabled: !!userId,
     queryFn: async () => {
       const res = await api.get("/quests", { params: { date } });
-      if (!date) {
-        localStorage.setItem("sl-quests-cache", JSON.stringify(res.data));
+      if (!date && userId) {
+        localStorage.setItem(`sl-quests-cache-${userId}`, JSON.stringify(res.data));
       }
       return res.data;
     },
     initialData: () => {
-      if (date) return undefined;
+      if (date || !userId) return undefined;
       try {
-        const cached = localStorage.getItem("sl-quests-cache");
+        const cached = localStorage.getItem(`sl-quests-cache-${userId}`);
         return cached ? JSON.parse(cached) : undefined;
       } catch {
         return undefined;

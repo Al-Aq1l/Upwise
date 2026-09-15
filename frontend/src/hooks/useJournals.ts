@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import api from "@/lib/api";
+import { useAuthStore } from "@/lib/auth";
 
 export type Journal = {
   id: number;
@@ -17,8 +18,12 @@ export type PaginatedJournals = {
 };
 
 export function useJournals(page = 1) {
+  const user = useAuthStore((s) => s.user);
+  const userId = user?.id;
+
   return useQuery<PaginatedJournals>({
-    queryKey: ["journals", page],
+    queryKey: ["journals", page, userId],
+    enabled: !!userId,
     queryFn: async () => {
       const res = await api.get("/journals", { params: { page } });
       return res.data;
@@ -28,6 +33,9 @@ export function useJournals(page = 1) {
 
 export function useCreateJournal() {
   const queryClient = useQueryClient();
+  const user = useAuthStore((s) => s.user);
+  const userId = user?.id;
+
   return useMutation({
     mutationFn: async (data: { title: string; body: string }) => {
       const res = await api.post("/journals", data);
@@ -35,7 +43,7 @@ export function useCreateJournal() {
     },
     onMutate: async (newEntry) => {
       await queryClient.cancelQueries({ queryKey: ["journals"] });
-      const previousJournals = queryClient.getQueryData<PaginatedJournals>(["journals", 1]);
+      const previousJournals = queryClient.getQueryData<PaginatedJournals>(["journals", 1, userId]);
 
       const optimisticJournal: Journal = {
         id: Date.now(),
@@ -46,18 +54,18 @@ export function useCreateJournal() {
       };
 
       if (previousJournals) {
-        queryClient.setQueryData<PaginatedJournals>(["journals", 1], {
+        queryClient.setQueryData<PaginatedJournals>(["journals", 1, userId], {
           ...previousJournals,
           data: [optimisticJournal, ...previousJournals.data],
           total: previousJournals.total + 1,
         });
       }
 
-      return { previousJournals };
+      return { previousJournals, userId };
     },
     onError: (_err, _vars, context) => {
       if (context?.previousJournals) {
-        queryClient.setQueryData(["journals", 1], context.previousJournals);
+        queryClient.setQueryData(["journals", 1, context.userId], context.previousJournals);
       }
     },
     onSettled: () => {
@@ -83,6 +91,9 @@ export function useUpdateJournal() {
 
 export function useDeleteJournal() {
   const queryClient = useQueryClient();
+  const user = useAuthStore((s) => s.user);
+  const userId = user?.id;
+
   return useMutation({
     mutationFn: async (id: number) => {
       const res = await api.delete(`/journals/${id}`);
@@ -90,21 +101,21 @@ export function useDeleteJournal() {
     },
     onMutate: async (id: number) => {
       await queryClient.cancelQueries({ queryKey: ["journals"] });
-      const previousJournals = queryClient.getQueryData<PaginatedJournals>(["journals", 1]);
+      const previousJournals = queryClient.getQueryData<PaginatedJournals>(["journals", 1, userId]);
 
       if (previousJournals) {
-        queryClient.setQueryData<PaginatedJournals>(["journals", 1], {
+        queryClient.setQueryData<PaginatedJournals>(["journals", 1, userId], {
           ...previousJournals,
           data: previousJournals.data.filter((j) => j.id !== id),
           total: Math.max(0, previousJournals.total - 1),
         });
       }
 
-      return { previousJournals };
+      return { previousJournals, userId };
     },
     onError: (_err, _id, context) => {
       if (context?.previousJournals) {
-        queryClient.setQueryData(["journals", 1], context.previousJournals);
+        queryClient.setQueryData(["journals", 1, context.userId], context.previousJournals);
       }
     },
     onSettled: () => {
