@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { BookOpenText, Save, X } from "lucide-react";
-import { useJournals, useCreateJournal, useDeleteJournal } from "@/hooks/useJournals";
+import { BookOpenText, Save, X, Eye, Calendar, Trash2, Clock, Sparkles } from "lucide-react";
+import { useJournals, useCreateJournal, useDeleteJournal, Journal } from "@/hooks/useJournals";
 import { useNotificationStore } from "@/lib/notifications";
 import PanelTitle from "@/components/ui/PanelTitle";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
@@ -9,6 +9,7 @@ export default function JournalPage() {
   const [page, setPage] = useState(1);
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
+  const [selectedJournal, setSelectedJournal] = useState<Journal | null>(null);
 
   const { data, isLoading } = useJournals(page);
   const createJournalMutation = useCreateJournal();
@@ -52,6 +53,10 @@ export default function JournalPage() {
 
   const handleDelete = (id: number) => {
     if (window.confirm("Hapus jurnal ini?")) {
+      if (selectedJournal?.id === id) {
+        setSelectedJournal(null);
+      }
+
       // Instantly notify
       showToast({
         type: "info",
@@ -72,8 +77,12 @@ export default function JournalPage() {
     }
   };
 
+  const countWords = (text: string) => {
+    return text.trim().split(/\s+/).filter(Boolean).length;
+  };
+
   return (
-    <div className="content-grid two-col">
+    <div className="content-grid two-col journal-page-grid">
       <section className="panel form-panel">
         <PanelTitle icon={BookOpenText} title="Tulis Journal" />
         <form onSubmit={handleSave} className="form-container">
@@ -97,37 +106,83 @@ export default function JournalPage() {
           </label>
           <button className="primary" type="submit" disabled={createJournalMutation.isPending}>
             <Save size={18} />{" "}
-            {createJournalMutation.isPending ? "Menyimpan..." : "Simpan Journal"}
+            {createJournalMutation.isPending ? "Menyimpan..." : "Simpan Journal (+35 EXP)"}
           </button>
         </form>
       </section>
 
-      <section className="journal-list">
-        {data?.data && data.data.length > 0 ? (
-          data.data.map((journal) => (
-            <article key={journal.id} className="panel journal-item">
-              <div className="journal-head">
-                <span>
-                  {new Date(journal.created_at).toLocaleDateString("id-ID", {
-                    day: "numeric",
-                    month: "long",
-                    year: "numeric",
-                  })}
-                </span>
-                <button
-                  className="icon-btn remove-journal-btn"
-                  aria-label="Hapus journal"
-                  onClick={() => handleDelete(journal.id)}
-                >
-                  <X size={16} />
-                </button>
-              </div>
-              <h3>{journal.title}</h3>
-              <p>{journal.body}</p>
-            </article>
-          ))
+      <section className="journal-list-section">
+        <div className="journal-list-header">
+          <div className="journal-list-title">
+            <BookOpenText size={18} className="text-cyan" />
+            <strong>Arsip Jurnal Petualangan</strong>
+          </div>
+          {data?.total !== undefined && (
+            <span className="journal-count-badge">{data.total} Catatan</span>
+          )}
+        </div>
+
+        {isLoading ? (
+          <div className="journal-loading-box">
+            <LoadingSpinner />
+          </div>
+        ) : data?.data && data.data.length > 0 ? (
+          <div className="journal-cards-container">
+            {data.data.map((journal) => (
+              <article
+                key={journal.id}
+                className="journal-compact-card"
+                onClick={() => setSelectedJournal(journal)}
+                title="Klik untuk membuka preview lengkap"
+              >
+                <div className="journal-compact-top">
+                  <div className="journal-date-chip">
+                    <Calendar size={12} />
+                    <span>
+                      {new Date(journal.created_at).toLocaleDateString("id-ID", {
+                        day: "numeric",
+                        month: "short",
+                        year: "numeric",
+                      })}
+                    </span>
+                  </div>
+                  <div className="journal-actions-row">
+                    <span className="journal-exp-tag">+35 EXP</span>
+                    <button
+                      type="button"
+                      className="journal-delete-btn"
+                      aria-label="Hapus journal"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDelete(journal.id);
+                      }}
+                      title="Hapus Jurnal"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
+                </div>
+
+                <h3 className="journal-compact-title">{journal.title}</h3>
+                <p className="journal-compact-snippet">{journal.body}</p>
+
+                <div className="journal-compact-footer">
+                  <span className="journal-word-count">
+                    {countWords(journal.body)} kata
+                  </span>
+                  <div className="journal-preview-hint">
+                    <span>Baca Selengkapnya</span>
+                    <Eye size={13} />
+                  </div>
+                </div>
+              </article>
+            ))}
+          </div>
         ) : (
-          <p className="muted empty-text">Belum ada jurnal petualangan. Tulis jurnal pertamamu!</p>
+          <div className="empty-journal-box">
+            <p className="muted empty-text">Belum ada jurnal petualangan.</p>
+            <span className="empty-subtext">Tulis refleksi harianmu untuk mengumpulkan +35 EXP!</span>
+          </div>
         )}
 
         {data && data.last_page > 1 && (
@@ -152,6 +207,87 @@ export default function JournalPage() {
           </div>
         )}
       </section>
+
+      {/* Journal Preview Modal */}
+      {selectedJournal && (
+        <div className="modal-overlay" onClick={() => setSelectedJournal(null)}>
+          <div
+            className="journal-preview-modal-panel"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              className="modal-close-btn"
+              onClick={() => setSelectedJournal(null)}
+              aria-label="Tutup"
+            >
+              <X size={18} />
+            </button>
+
+            <div className="journal-modal-header">
+              <div className="journal-modal-badges">
+                <span className="journal-badge-hunter">
+                  <Sparkles size={12} className="text-cyan" />
+                  HUNTER ARCHIVE · ADVENTURE LOG
+                </span>
+                <span className="journal-badge-exp">+35 EXP REWARD</span>
+              </div>
+
+              <h2 className="journal-modal-title">{selectedJournal.title}</h2>
+
+              <div className="journal-modal-meta">
+                <div className="meta-item">
+                  <Calendar size={14} />
+                  <span>
+                    {new Date(selectedJournal.created_at).toLocaleDateString("id-ID", {
+                      weekday: "long",
+                      day: "numeric",
+                      month: "long",
+                      year: "numeric",
+                    })}
+                  </span>
+                </div>
+                <div className="meta-item">
+                  <Clock size={14} />
+                  <span>
+                    {new Date(selectedJournal.created_at).toLocaleTimeString("id-ID", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}{" "}
+                    WIB
+                  </span>
+                </div>
+                <div className="meta-item">
+                  <span>{countWords(selectedJournal.body)} Kata</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="journal-modal-content">
+              <p className="journal-modal-body">{selectedJournal.body}</p>
+            </div>
+
+            <div className="journal-modal-footer">
+              <button
+                type="button"
+                className="journal-modal-delete-btn"
+                onClick={() => handleDelete(selectedJournal.id)}
+              >
+                <Trash2 size={15} />
+                <span>Hapus Jurnal</span>
+              </button>
+              <button
+                type="button"
+                className="primary"
+                onClick={() => setSelectedJournal(null)}
+              >
+                Selesai Membaca
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
+
