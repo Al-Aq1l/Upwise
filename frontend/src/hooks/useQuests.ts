@@ -40,6 +40,28 @@ export function useQuests(date?: string) {
   });
 }
 
+export function useGenerateStarterQuests() {
+  const queryClient = useQueryClient();
+  const user = useAuthStore((s) => s.user);
+  const userId = user?.id;
+
+  return useMutation({
+    mutationFn: async (data: { workout_type: "home" | "gym" | "none"; growth_focus?: string[] }) => {
+      const res = await api.post("/quests/generate-starter", data);
+      return res.data;
+    },
+    onSuccess: (data) => {
+      if (userId && data.quests) {
+        localStorage.setItem(`sl-quests-cache-${userId}`, JSON.stringify({ quests: data.quests }));
+      }
+      queryClient.invalidateQueries({ queryKey: ["quests"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+      queryClient.invalidateQueries({ queryKey: ["statistics"] });
+      queryClient.invalidateQueries({ queryKey: ["history"] });
+    },
+  });
+}
+
 export function useCreateQuest() {
   const queryClient = useQueryClient();
   return useMutation({

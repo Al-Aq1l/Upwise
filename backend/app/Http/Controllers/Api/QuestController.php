@@ -62,6 +62,149 @@ class QuestController extends Controller
         }
     }
 
+    public function generateStarter(Request $request): JsonResponse
+    {
+        try {
+            $user = $request->user();
+            $workoutType = $request->input('workout_type', 'home'); // 'home' | 'gym' | 'none'
+            $growthFocus = $request->input('growth_focus', []); // array: ['study', 'reading', 'mindfulness']
+            if (!is_array($growthFocus)) {
+                $growthFocus = [$growthFocus];
+            }
+
+            $templateQuests = [];
+
+            // 1. Workout Archetype Quests
+            if ($workoutType === 'home') {
+                $templateQuests[] = [
+                    'title' => 'Home Workout: Push Up 100x & Sit Up 50x',
+                    'description' => 'Latihan kekuatan kalistenik mandiri untuk menjaga kebugaran otot.',
+                    'difficulty' => 'Normal',
+                    'category' => 'Health',
+                ];
+                $templateQuests[] = [
+                    'title' => 'Plank 3 Menit & Bodyweight Squats',
+                    'description' => 'Kekuatan inti core tubuh dan stabilitas tubuh bagian bawah.',
+                    'difficulty' => 'Easy',
+                    'category' => 'Health',
+                ];
+                $templateQuests[] = [
+                    'title' => 'Minum 2 Liter Air & Hidrasi Optimal',
+                    'description' => 'Penuhi asupan cairan tubuh untuk pemulihan dan konsentrasi prima.',
+                    'difficulty' => 'Easy',
+                    'category' => 'Health',
+                ];
+            } elseif ($workoutType === 'gym') {
+                $templateQuests[] = [
+                    'title' => 'Sesi Gym: Angkat Beban & Strength Training',
+                    'description' => 'Latihan beban terarah di gym (chest, back, atau legs) dengan progressive overload.',
+                    'difficulty' => 'Hard',
+                    'category' => 'Health',
+                ];
+                $templateQuests[] = [
+                    'title' => 'Penuhi Kebutuhan Protein Harian',
+                    'description' => 'Konsumsi sumber protein berkualitas untuk regenerasi dan pertumbuhan otot.',
+                    'difficulty' => 'Normal',
+                    'category' => 'Health',
+                ];
+                $templateQuests[] = [
+                    'title' => 'Kardio / Jalan Kaki 8.000 Langkah',
+                    'description' => 'Aktivitas kardiovaskular ringan untuk membakar kalori dan stamina.',
+                    'difficulty' => 'Easy',
+                    'category' => 'Health',
+                ];
+            }
+
+            // 2. Personal Growth & Academic Focus Quests
+            if (in_array('study', $growthFocus)) {
+                $templateQuests[] = [
+                    'title' => 'Sesi Deep Focus 45 Menit (Studi / Skripsi / Riset)',
+                    'description' => 'Sesi belajar intensif tanpa distraksi smartphone atau media sosial.',
+                    'difficulty' => 'Normal',
+                    'category' => 'Work',
+                ];
+            }
+
+            if (in_array('reading', $growthFocus)) {
+                $templateQuests[] = [
+                    'title' => 'Baca 15 Halaman Buku / Jurnal Ilmiah',
+                    'description' => 'Perluas wawasan dan literasi melalui bacaan berkualitas setiap hari.',
+                    'difficulty' => 'Easy',
+                    'category' => 'Skill',
+                ];
+            }
+
+            if (in_array('mindfulness', $growthFocus)) {
+                $templateQuests[] = [
+                    'title' => 'Refleksi Harian di Jurnal & Rencana Hari Esok',
+                    'description' => 'Tutup hari dengan menulis pencapaian, rasa syukur, dan evaluasi diri.',
+                    'difficulty' => 'Easy',
+                    'category' => 'Planning',
+                ];
+            }
+
+            // If empty (e.g. none selected), provide standard baseline starter
+            if (empty($templateQuests)) {
+                $templateQuests[] = [
+                    'title' => 'Push Up 50x & Stretching Pagi',
+                    'description' => 'Aktivasi tubuh di pagi hari agar berenergi.',
+                    'difficulty' => 'Easy',
+                    'category' => 'Health',
+                ];
+                $templateQuests[] = [
+                    'title' => 'Sesi Fokus 25 Menit Pomodoro',
+                    'description' => 'Fokus penuh pada tugas prioritas hari ini.',
+                    'difficulty' => 'Easy',
+                    'category' => 'Work',
+                ];
+                $templateQuests[] = [
+                    'title' => 'Minum 2L Air & Evaluasi Harian',
+                    'description' => 'Menjaga hidrasi dan kesadaran diri.',
+                    'difficulty' => 'Easy',
+                    'category' => 'Planning',
+                ];
+            }
+
+            $todaySession = $user->dungeonSessions()
+                ->whereDate('date', today())
+                ->first();
+
+            $createdQuests = [];
+            foreach ($templateQuests as $t) {
+                // Check if identical quest already exists today for this user
+                $exists = $user->quests()
+                    ->whereDate('date', today())
+                    ->where('title', $t['title'])
+                    ->exists();
+
+                if (!$exists) {
+                    $expReward = (int) $this->gamification->questExpReward($t['difficulty']);
+                    $createdQuests[] = Quest::create([
+                        'user_id' => $user->id,
+                        'dungeon_session_id' => $todaySession?->id,
+                        'title' => $t['title'],
+                        'description' => $t['description'],
+                        'difficulty' => $t['difficulty'],
+                        'category' => $t['category'],
+                        'exp_reward' => $expReward,
+                        'date' => today(),
+                    ]);
+                }
+            }
+
+            $this->gamification->updateDailyStats($user);
+
+            return response()->json([
+                'message' => count($createdQuests) . ' quest berhasil digenerate otomatis!',
+                'created_count' => count($createdQuests),
+                'quests' => $user->quests()->whereDate('date', today())->orderByDesc('created_at')->get(),
+            ], 201);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('GenerateStarterQuests error: ' . $e->getMessage(), ['exception' => $e]);
+            return response()->json(['message' => 'Gagal generate starter quests: ' . $e->getMessage()], 500);
+        }
+    }
+
     public function update(StoreQuestRequest $request, Quest $quest): JsonResponse
     {
         try {

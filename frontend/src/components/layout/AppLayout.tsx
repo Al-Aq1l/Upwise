@@ -5,6 +5,7 @@ import Topbar from "./Topbar";
 import BottomNavigation from "./BottomNavigation";
 import MobileDrawer from "./MobileDrawer";
 import SystemNotification from "@/components/ui/SystemNotification";
+import OnboardingQuestModal from "@/components/ui/OnboardingQuestModal";
 import { useAuthStore } from "@/lib/auth";
 
 export default function AppLayout() {
@@ -32,6 +33,7 @@ export default function AppLayout() {
       <MobileDrawer />
       <BottomNavigation />
       <SystemNotification />
+      <OnboardingQuestModal />
     </div>
   );
 }

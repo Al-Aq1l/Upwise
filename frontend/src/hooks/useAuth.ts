@@ -37,6 +37,9 @@ export function useRegister() {
     },
     onSuccess: async (data) => {
       clearUserCache();
+      if (data.user?.id) {
+        localStorage.setItem(`sl-needs-onboarding-${data.user.id}`, "true");
+      }
       setAuth(data.token, data.user);
       if (data.profile) {
         setProfile(data.profile);

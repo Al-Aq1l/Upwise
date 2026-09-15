@@ -40,6 +40,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // Quests
     Route::get('/quests', [QuestController::class, 'index']);
     Route::post('/quests', [QuestController::class, 'store']);
+    Route::post('/quests/generate-starter', [QuestController::class, 'generateStarter']);
     Route::put('/quests/{quest}', [QuestController::class, 'update']);
     Route::delete('/quests/{quest}', [QuestController::class, 'destroy']);
     Route::patch('/quests/{quest}/toggle', [QuestController::class, 'toggle']);

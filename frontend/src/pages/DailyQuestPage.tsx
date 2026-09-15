@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { Plus, ClipboardList, Sparkles, Zap } from "lucide-react";
-import { useQuests, useCreateQuest, useDeleteQuest, useToggleQuest, Quest } from "@/hooks/useQuests";
+import { Plus, ClipboardList, Sparkles, Zap, Home, Dumbbell, GraduationCap, CheckCircle2 } from "lucide-react";
+import { useQuests, useCreateQuest, useDeleteQuest, useToggleQuest, useGenerateStarterQuests, Quest } from "@/hooks/useQuests";
 import { useNotificationStore } from "@/lib/notifications";
 import PanelTitle from "@/components/ui/PanelTitle";
 import QuestRow from "@/components/ui/QuestRow";
@@ -129,6 +129,47 @@ export default function DailyQuestPage() {
     });
   };
 
+  const generateStarterMutation = useGenerateStarterQuests();
+
+  const handleQuickGenerate = (type: "home" | "gym" | "study" | "balanced") => {
+    let workout_type: "home" | "gym" | "none" = "home";
+    let growth_focus: string[] = [];
+
+    if (type === "home") {
+      workout_type = "home";
+      growth_focus = ["mindfulness"];
+    } else if (type === "gym") {
+      workout_type = "gym";
+      growth_focus = ["reading"];
+    } else if (type === "study") {
+      workout_type = "none";
+      growth_focus = ["study", "reading", "mindfulness"];
+    } else {
+      workout_type = "home";
+      growth_focus = ["study", "reading"];
+    }
+
+    generateStarterMutation.mutate(
+      { workout_type, growth_focus },
+      {
+        onSuccess: (res: any) => {
+          showToast({
+            type: "info",
+            title: "Paket Quest Berhasil Dimuat!",
+            message: `${res.created_count || "Paket"} quest harian berhasil ditambahkan.`,
+          });
+        },
+        onError: (err: any) => {
+          showToast({
+            type: "info",
+            title: "Gagal Memuat Paket",
+            message: err?.response?.data?.message || "Terjadi kesalahan.",
+          });
+        },
+      }
+    );
+  };
+
   return (
     <div className="content-grid two-col">
       <section className="panel form-panel">
@@ -197,6 +238,53 @@ export default function DailyQuestPage() {
 
       <section className="panel">
         <PanelTitle icon={ClipboardList} title="Daftar Quest Hari Ini" />
+
+        {/* Quick Auto-Generate Pack Toolbar */}
+        <div className="quest-quick-pack-bar">
+          <div className="pack-bar-header">
+            <Zap size={14} className="text-cyan" />
+            <span>Auto-Generate Paket Harian:</span>
+          </div>
+          <div className="pack-buttons-row">
+            <button
+              type="button"
+              className="quick-pack-btn"
+              onClick={() => handleQuickGenerate("home")}
+              disabled={generateStarterMutation.isPending}
+            >
+              <Home size={13} />
+              <span>Paket Home Workout</span>
+            </button>
+            <button
+              type="button"
+              className="quick-pack-btn"
+              onClick={() => handleQuickGenerate("gym")}
+              disabled={generateStarterMutation.isPending}
+            >
+              <Dumbbell size={13} />
+              <span>Paket Gym & Strength</span>
+            </button>
+            <button
+              type="button"
+              className="quick-pack-btn"
+              onClick={() => handleQuickGenerate("study")}
+              disabled={generateStarterMutation.isPending}
+            >
+              <GraduationCap size={13} />
+              <span>Paket Studi & Skripsi</span>
+            </button>
+            <button
+              type="button"
+              className="quick-pack-btn"
+              onClick={() => handleQuickGenerate("balanced")}
+              disabled={generateStarterMutation.isPending}
+            >
+              <Sparkles size={13} />
+              <span>Paket Seimbang</span>
+            </button>
+          </div>
+        </div>
+
         <div className="quest-list">
           {data?.quests && data.quests.length > 0 ? (
             data.quests.map((quest: Quest) => (
@@ -209,7 +297,30 @@ export default function DailyQuestPage() {
               />
             ))
           ) : (
-            <p className="muted empty-text">Tidak ada quest untuk hari ini. Silakan buat satu!</p>
+            <div className="empty-quests-box">
+              <p className="muted empty-text">Belum ada quest untuk hari ini.</p>
+              <span className="empty-subtext">Mulai hari ini dengan paket instan 1-klik:</span>
+              <div className="empty-quick-buttons">
+                <button
+                  type="button"
+                  className="quick-pack-btn active-accent"
+                  onClick={() => handleQuickGenerate("home")}
+                  disabled={generateStarterMutation.isPending}
+                >
+                  <Home size={14} />
+                  <span>Mulai Home Workout</span>
+                </button>
+                <button
+                  type="button"
+                  className="quick-pack-btn active-amber"
+                  onClick={() => handleQuickGenerate("gym")}
+                  disabled={generateStarterMutation.isPending}
+                >
+                  <Dumbbell size={14} />
+                  <span>Mulai Gym & Strength</span>
+                </button>
+              </div>
+            </div>
           )}
         </div>
       </section>
