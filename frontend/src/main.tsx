@@ -1,21 +1,24 @@
-import React from "react";
+import React, { lazy, Suspense } from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 import { useAuthStore } from "./lib/auth";
 import AppLayout from "./components/layout/AppLayout";
-import LoginPage from "./pages/LoginPage";
-import DashboardPage from "./pages/DashboardPage";
-import EnterDungeonPage from "./pages/EnterDungeonPage";
-import DailyQuestPage from "./pages/DailyQuestPage";
-import FocusSessionPage from "./pages/FocusSessionPage";
-import JournalPage from "./pages/JournalPage";
-import ExitDungeonPage from "./pages/ExitDungeonPage";
-import StatisticsPage from "./pages/StatisticsPage";
-import AchievementsPage from "./pages/AchievementsPage";
-import HistoryPage from "./pages/HistoryPage";
-import SettingsPage from "./pages/SettingsPage";
+import LoadingSpinner from "./components/ui/LoadingSpinner";
+
+// Lazy-loaded pages
+const LoginPage = lazy(() => import("./pages/LoginPage"));
+const DashboardPage = lazy(() => import("./pages/DashboardPage"));
+const EnterDungeonPage = lazy(() => import("./pages/EnterDungeonPage"));
+const DailyQuestPage = lazy(() => import("./pages/DailyQuestPage"));
+const FocusSessionPage = lazy(() => import("./pages/FocusSessionPage"));
+const JournalPage = lazy(() => import("./pages/JournalPage"));
+const ExitDungeonPage = lazy(() => import("./pages/ExitDungeonPage"));
+const StatisticsPage = lazy(() => import("./pages/StatisticsPage"));
+const AchievementsPage = lazy(() => import("./pages/AchievementsPage"));
+const HistoryPage = lazy(() => import("./pages/HistoryPage"));
+const SettingsPage = lazy(() => import("./pages/SettingsPage"));
 
 import "./styles.css";
 import { queryClient } from "./lib/queryClient";
@@ -75,7 +78,9 @@ function App() {
             path="/login"
             element={
               <AnonymousOnlyRoute>
-                <LoginPage />
+                <Suspense fallback={<LoadingSpinner />}>
+                  <LoginPage />
+                </Suspense>
               </AnonymousOnlyRoute>
             }
           />
@@ -89,16 +94,16 @@ function App() {
               </ProtectedRoute>
             }
           >
-            <Route index element={<DashboardPage />} />
-            <Route path="enter-dungeon" element={<EnterDungeonPage />} />
-            <Route path="daily-quest" element={<DailyQuestPage />} />
-            <Route path="focus-session" element={<FocusSessionPage />} />
-            <Route path="adventure-journal" element={<JournalPage />} />
-            <Route path="exit-dungeon" element={<ExitDungeonPage />} />
-            <Route path="statistics" element={<StatisticsPage />} />
-            <Route path="achievements" element={<AchievementsPage />} />
-            <Route path="history" element={<HistoryPage />} />
-            <Route path="settings" element={<SettingsPage />} />
+            <Route index element={<Suspense fallback={<LoadingSpinner />}><DashboardPage /></Suspense>} />
+            <Route path="enter-dungeon" element={<Suspense fallback={<LoadingSpinner />}><EnterDungeonPage /></Suspense>} />
+            <Route path="daily-quest" element={<Suspense fallback={<LoadingSpinner />}><DailyQuestPage /></Suspense>} />
+            <Route path="focus-session" element={<Suspense fallback={<LoadingSpinner />}><FocusSessionPage /></Suspense>} />
+            <Route path="adventure-journal" element={<Suspense fallback={<LoadingSpinner />}><JournalPage /></Suspense>} />
+            <Route path="exit-dungeon" element={<Suspense fallback={<LoadingSpinner />}><ExitDungeonPage /></Suspense>} />
+            <Route path="statistics" element={<Suspense fallback={<LoadingSpinner />}><StatisticsPage /></Suspense>} />
+            <Route path="achievements" element={<Suspense fallback={<LoadingSpinner />}><AchievementsPage /></Suspense>} />
+            <Route path="history" element={<Suspense fallback={<LoadingSpinner />}><HistoryPage /></Suspense>} />
+            <Route path="settings" element={<Suspense fallback={<LoadingSpinner />}><SettingsPage /></Suspense>} />
           </Route>
 
           {/* Fallback Catch-All */}
