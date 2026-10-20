@@ -6784,6 +6784,820 @@ input[type="range"] {
   color: #334155;
 }
 
+/* ==========================================================================
+   GYM WORKOUT SCHEDULE & FITNESS PROGRESS STYLES
+   ========================================================================== */
+
+.schedule-page-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+}
+
+.schedule-hero-panel {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(8, 47, 73, 0.45));
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  border-radius: 16px;
+  padding: 1.75rem 2rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  position: relative;
+  overflow: hidden;
+}
+
+.schedule-hero-panel::before {
+  content: "";
+  position: absolute;
+  top: -50px;
+  right: -50px;
+  width: 150px;
+  height: 150px;
+  background: radial-gradient(circle, rgba(6, 182, 212, 0.2) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.schedule-hero-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.schedule-badge-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.12);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  padding: 4px 10px;
+  border-radius: 9999px;
+  width: fit-content;
+}
+
+.schedule-hero-title {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #f8fafc;
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.schedule-hero-desc {
+  font-size: 0.9rem;
+  color: #94a3b8;
+  margin: 0;
+  max-width: 650px;
+  line-height: 1.5;
+}
+
+.schedule-hero-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* Template Selector */
+.schedule-template-selector-panel {
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.template-selector-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #64748b;
+}
+
+.template-pills-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.template-pill-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #94a3b8;
+  background: rgba(30, 41, 59, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.template-pill-btn:hover {
+  background: rgba(51, 65, 85, 0.8);
+  color: #f1f5f9;
+  border-color: rgba(56, 189, 248, 0.3);
+}
+
+.template-pill-btn.active {
+  background: rgba(14, 165, 233, 0.2);
+  color: #38bdf8;
+  border-color: #38bdf8;
+  box-shadow: 0 0 16px rgba(56, 189, 248, 0.2);
+}
+
+.template-active-desc {
+  font-size: 0.82rem;
+  color: #94a3b8;
+  margin: 0;
+  font-style: italic;
+}
+
+/* 7 Days Navigation Bar */
+.schedule-days-bar {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.65rem;
+  width: 100%;
+}
+
+.schedule-day-tab {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 0.9rem 1rem;
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+  position: relative;
+}
+
+.schedule-day-tab:hover {
+  background: rgba(30, 41, 59, 0.8);
+  border-color: rgba(56, 189, 248, 0.3);
+}
+
+.schedule-day-tab.active {
+  background: linear-gradient(180deg, rgba(14, 165, 233, 0.18), rgba(15, 23, 42, 0.85));
+  border-color: #38bdf8;
+  box-shadow: 0 4px 20px rgba(56, 189, 248, 0.25);
+}
+
+.schedule-day-tab.is-today::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: #38bdf8;
+  border-radius: 12px 12px 0 0;
+}
+
+.day-tab-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 4px;
+}
+
+.day-tab-name {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #f1f5f9;
+}
+
+.day-today-indicator {
+  font-size: 0.62rem;
+  font-weight: 800;
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.15);
+  padding: 2px 5px;
+  border-radius: 4px;
+}
+
+.day-tab-split {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #38bdf8;
+  margin-bottom: 2px;
+}
+
+.day-tab-count {
+  font-size: 0.7rem;
+  color: #64748b;
+}
+
+/* Schedule Detail Panel */
+.schedule-detail-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 1.75rem;
+}
+
+.schedule-detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.schedule-detail-titles {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.schedule-day-badge-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.day-label-pill {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #f8fafc;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+
+.today-glow-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.15);
+  border: 1px solid rgba(56, 189, 248, 0.4);
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+
+.schedule-day-headline {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #f8fafc;
+  margin: 0;
+}
+
+.schedule-day-focus {
+  font-size: 0.85rem;
+  color: #94a3b8;
+  margin: 0;
+}
+
+.schedule-day-focus strong {
+  color: #cbd5e1;
+}
+
+.apply-quest-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  font-size: 0.88rem;
+  font-weight: 700;
+}
+
+/* Exercise Cards List */
+.schedule-exercises-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.schedule-exercises-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.small-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  font-size: 0.78rem;
+}
+
+/* Add Exercise Form */
+.add-exercise-form {
+  background: rgba(15, 23, 42, 0.75);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  border-radius: 12px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.form-grid-exercise {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.85rem;
+}
+
+.form-field.full-span {
+  grid-column: span 2;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.form-field label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.form-field input,
+.form-field select {
+  padding: 8px 12px;
+  background: rgba(30, 41, 59, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  color: #f8fafc;
+  font-size: 0.85rem;
+}
+
+.form-actions-exercise {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.exercise-cards-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.exercise-card-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  padding: 0.9rem 1.25rem;
+  transition: all 0.2s ease;
+}
+
+.exercise-card-item:hover {
+  background: rgba(30, 41, 59, 0.6);
+  border-color: rgba(56, 189, 248, 0.2);
+  transform: translateX(4px);
+}
+
+.exercise-index-bubble {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(56, 189, 248, 0.12);
+  color: #38bdf8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.exercise-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.exercise-title-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.exercise-name {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #f1f5f9;
+}
+
+.diff-pill {
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+.diff-pill.diff-easy {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+}
+
+.diff-pill.diff-normal {
+  background: rgba(56, 189, 248, 0.15);
+  color: #38bdf8;
+}
+
+.diff-pill.diff-hard {
+  background: rgba(244, 63, 94, 0.15);
+  color: #fb7185;
+}
+
+.exercise-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.exercise-stat-pill {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.exercise-stat-pill strong {
+  color: #38bdf8;
+}
+
+.exercise-category-sub {
+  font-size: 0.72rem;
+  color: #64748b;
+  text-transform: uppercase;
+}
+
+.exercise-delete-btn {
+  background: transparent;
+  border: none;
+  color: #64748b;
+  padding: 6px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.exercise-delete-btn:hover {
+  color: #f43f5e;
+  background: rgba(244, 63, 94, 0.1);
+}
+
+.empty-schedule-card {
+  padding: 2.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(15, 23, 42, 0.4);
+  border: 1px dashed rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  text-align: center;
+}
+
+.empty-schedule-card .empty-icon {
+  color: #64748b;
+  margin-bottom: 0.75rem;
+}
+
+.empty-schedule-card .empty-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #cbd5e1;
+  margin: 0 0 4px 0;
+}
+
+.empty-schedule-card .empty-desc {
+  font-size: 0.82rem;
+  color: #64748b;
+  margin: 0;
+}
+
+/* Category Badge Colors */
+.category-tag.cat-push {
+  background: rgba(56, 189, 248, 0.15);
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+}
+
+.category-tag.cat-pull {
+  background: rgba(99, 102, 241, 0.15);
+  color: #818cf8;
+  border: 1px solid rgba(99, 102, 241, 0.3);
+}
+
+.category-tag.cat-legs {
+  background: rgba(244, 63, 94, 0.15);
+  color: #fb7185;
+  border: 1px solid rgba(244, 63, 94, 0.3);
+}
+
+.category-tag.cat-core {
+  background: rgba(245, 158, 11, 0.15);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.category-tag.cat-cardio {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.category-tag.cat-recovery {
+  background: rgba(168, 85, 247, 0.15);
+  color: #c084fc;
+  border: 1px solid rgba(168, 85, 247, 0.3);
+}
+
+/* Quest Schedule CTA Banner */
+.daily-quest-page-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  width: 100%;
+}
+
+.quest-schedule-banner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  background: linear-gradient(90deg, rgba(14, 165, 233, 0.12), rgba(15, 23, 42, 0.85));
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  border-radius: 12px;
+  gap: 1rem;
+}
+
+.banner-left {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.banner-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.banner-text strong {
+  font-size: 0.88rem;
+  color: #f1f5f9;
+}
+
+.banner-text span {
+  font-size: 0.78rem;
+  color: #94a3b8;
+}
+
+.banner-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* Muscle Breakdown Panel in Statistics */
+.muscle-breakdown-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.muscle-bars-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+.muscle-bar-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: rgba(15, 23, 42, 0.5);
+  padding: 0.85rem 1rem;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.muscle-bar-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.muscle-name {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #e2e8f0;
+}
+
+.muscle-count {
+  font-size: 0.75rem;
+  color: #94a3b8;
+}
+
+.muscle-count strong {
+  color: #38bdf8;
+}
+
+.muscle-track {
+  width: 100%;
+  height: 7px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.muscle-fill {
+  height: 100%;
+  border-radius: 9999px;
+  transition: width 0.3s ease;
+}
+
+.muscle-fill.fill-cyan {
+  background: #38bdf8;
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
+}
+
+.muscle-fill.fill-blue {
+  background: #818cf8;
+}
+
+.muscle-fill.fill-rose {
+  background: #fb7185;
+}
+
+.muscle-fill.fill-amber {
+  background: #fbbf24;
+}
+
+.muscle-fill.fill-emerald {
+  background: #34d399;
+}
+
+.muscle-fill.fill-purple {
+  background: #c084fc;
+}
+
+/* Responsive adjustments */
+@media (max-width: 900px) {
+  .schedule-days-bar {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .muscle-bars-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .schedule-days-bar {
+    display: flex;
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
+    scrollbar-width: thin;
+  }
+
+  .schedule-day-tab {
+    min-width: 110px;
+    flex-shrink: 0;
+  }
+
+  .schedule-hero-panel {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 1.25rem;
+    gap: 1rem;
+  }
+
+  .form-grid-exercise {
+    grid-template-columns: 1fr;
+  }
+
+  .form-field.full-span {
+    grid-column: span 1;
+  }
+
+  .quest-schedule-banner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+/* Light Theme Overrides for Schedule */
+.light .schedule-hero-panel {
+  background: linear-gradient(135deg, #ffffff, #f0f9ff);
+  border-color: #bae6fd;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+}
+
+.light .schedule-hero-title {
+  color: #0f172a;
+}
+
+.light .schedule-hero-desc {
+  color: #475569;
+}
+
+.light .schedule-template-selector-panel {
+  background: #ffffff;
+  border-color: #e2e8f0;
+}
+
+.light .template-pill-btn {
+  background: #f1f5f9;
+  border-color: #e2e8f0;
+  color: #475569;
+}
+
+.light .template-pill-btn.active {
+  background: #e0f2fe;
+  color: #0284c7;
+  border-color: #0284c7;
+}
+
+.light .schedule-day-tab {
+  background: #ffffff;
+  border-color: #e2e8f0;
+}
+
+.light .schedule-day-tab.active {
+  background: #f0f9ff;
+  border-color: #0284c7;
+}
+
+.light .day-tab-name {
+  color: #0f172a;
+}
+
+.light .exercise-card-item {
+  background: #ffffff;
+  border-color: #e2e8f0;
+}
+
+.light .exercise-name {
+  color: #0f172a;
+}
+
+.light .add-exercise-form {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+.light .form-field input,
+.light .form-field select {
+  background: #ffffff;
+  border-color: #cbd5e1;
+  color: #0f172a;
+}
+
+.light .quest-schedule-banner {
+  background: linear-gradient(90deg, #f0f9ff, #ffffff);
+  border-color: #bae6fd;
+}
+
+.light .banner-text strong {
+  color: #0f172a;
+}
+
+.light .muscle-bar-item {
+  background: #ffffff;
+  border-color: #e2e8f0;
+}
+
+.light .muscle-name {
+  color: #0f172a;
+}
+
+
 
 
 

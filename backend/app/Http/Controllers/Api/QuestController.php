@@ -72,96 +72,115 @@ class QuestController extends Controller
                 $growthFocus = [$growthFocus];
             }
 
+            $splitType = $request->input('split_type', $workoutType); // 'ppl' | 'upper_lower' | 'solo_awakening' | 'home' | 'gym'
+            $fitnessFocus = $request->input('fitness_focus', []); // ['chest', 'back', 'legs', 'nutrition', 'cardio']
+            if (!is_array($fitnessFocus)) {
+                $fitnessFocus = [$fitnessFocus];
+            }
+
             $templateQuests = [];
 
-            // 1. Workout Archetype Quests
-            if ($workoutType === 'home') {
+            if ($splitType === 'ppl' || $splitType === 'gym') {
                 $templateQuests[] = [
-                    'title' => 'Home Workout: Push Up 100x & Sit Up 50x',
-                    'description' => 'Latihan kekuatan kalistenik mandiri untuk menjaga kebugaran otot.',
-                    'difficulty' => 'Normal',
-                    'category' => 'Health',
-                ];
-                $templateQuests[] = [
-                    'title' => 'Plank 3 Menit & Bodyweight Squats',
-                    'description' => 'Kekuatan inti core tubuh dan stabilitas tubuh bagian bawah.',
-                    'difficulty' => 'Easy',
-                    'category' => 'Health',
-                ];
-                $templateQuests[] = [
-                    'title' => 'Minum 2 Liter Air & Hidrasi Optimal',
-                    'description' => 'Penuhi asupan cairan tubuh untuk pemulihan dan konsentrasi prima.',
-                    'difficulty' => 'Easy',
-                    'category' => 'Health',
-                ];
-            } elseif ($workoutType === 'gym') {
-                $templateQuests[] = [
-                    'title' => 'Sesi Gym: Angkat Beban & Strength Training',
-                    'description' => 'Latihan beban terarah di gym (chest, back, atau legs) dengan progressive overload.',
+                    'title' => 'Barbell Bench Press (4 Set x 8-10 Reps)',
+                    'description' => 'Latihan compound dada utama dengan beban progresif & kontrol gerakan.',
                     'difficulty' => 'Hard',
-                    'category' => 'Health',
+                    'category' => 'Push',
                 ];
                 $templateQuests[] = [
-                    'title' => 'Penuhi Kebutuhan Protein Harian',
-                    'description' => 'Konsumsi sumber protein berkualitas untuk regenerasi dan pertumbuhan otot.',
+                    'title' => 'Incline Dumbbell Press (3 Set x 10-12 Reps)',
+                    'description' => 'Target serat otot dada bagian atas (upper chest) untuk visual lebih tebal.',
                     'difficulty' => 'Normal',
-                    'category' => 'Health',
+                    'category' => 'Push',
                 ];
                 $templateQuests[] = [
-                    'title' => 'Kardio / Jalan Kaki 8.000 Langkah',
-                    'description' => 'Aktivitas kardiovaskular ringan untuk membakar kalori dan stamina.',
-                    'difficulty' => 'Easy',
-                    'category' => 'Health',
-                ];
-            }
-
-            // 2. Personal Growth & Academic Focus Quests
-            if (in_array('study', $growthFocus)) {
-                $templateQuests[] = [
-                    'title' => 'Sesi Deep Focus 45 Menit (Studi / Skripsi / Riset)',
-                    'description' => 'Sesi belajar intensif tanpa distraksi smartphone atau media sosial.',
+                    'title' => 'Overhead Shoulder Press & Triceps Pushdown',
+                    'description' => 'Kombinasi pembentukan bahu depan/samping dan trisep optimal.',
                     'difficulty' => 'Normal',
-                    'category' => 'Work',
+                    'category' => 'Push',
+                ];
+                $templateQuests[] = [
+                    'title' => 'Target Protein Harian (Minimal 120-150g)',
+                    'description' => 'Penuhi asupan protein untuk sintesis dan regenerasi jaringan otot.',
+                    'difficulty' => 'Normal',
+                    'category' => 'Nutrition',
+                ];
+            } elseif ($splitType === 'upper_lower') {
+                $templateQuests[] = [
+                    'title' => 'Upper Body Power: Bench & Bent-Over Row',
+                    'description' => 'Superset compound dada dan punggung untuk keseimbangan postur.',
+                    'difficulty' => 'Hard',
+                    'category' => 'Push',
+                ];
+                $templateQuests[] = [
+                    'title' => 'Lat Pulldown / Pull-Up (4 Set x 8-12 Reps)',
+                    'description' => 'Pelebaran sayap punggung (lats) dan kekuatan cengkeraman (grip).',
+                    'difficulty' => 'Normal',
+                    'category' => 'Pull',
+                ];
+                $templateQuests[] = [
+                    'title' => 'Arm Hypertrophy: Biceps Curl & Skullcrusher',
+                    'description' => 'Isolasi lengan untuk volume bisep dan trisep.',
+                    'difficulty' => 'Normal',
+                    'category' => 'Arms',
+                ];
+            } elseif ($splitType === 'solo_awakening') {
+                $templateQuests[] = [
+                    'title' => 'Solo Leveling Quest: 100 Push-ups',
+                    'description' => 'Latihan harian sistem hunter: 100 kali push-up penuh.',
+                    'difficulty' => 'Hard',
+                    'category' => 'Push',
+                ];
+                $templateQuests[] = [
+                    'title' => 'Solo Leveling Quest: 100 Sit-ups & 100 Squats',
+                    'description' => 'Latihan harian sistem hunter untuk daya tahan core & kaki.',
+                    'difficulty' => 'Hard',
+                    'category' => 'Legs',
+                ];
+                $templateQuests[] = [
+                    'title' => 'Solo Leveling Quest: 5km-10km Run / Cardio',
+                    'description' => 'Latihan kardio stamina sistem hunter untuk memperkuat jantung.',
+                    'difficulty' => 'Hard',
+                    'category' => 'Cardio',
+                ];
+            } else {
+                // Home / Calisthenics
+                $templateQuests[] = [
+                    'title' => 'Push-up Variation (Diamond & Standard 4x15)',
+                    'description' => 'Latihan kekuatan dada dan trisep tanpa alat.',
+                    'difficulty' => 'Normal',
+                    'category' => 'Push',
+                ];
+                $templateQuests[] = [
+                    'title' => 'Bodyweight Squats & Lunges (4x20)',
+                    'description' => 'Aktivasi paha depan, paha belakang, dan otot gluteus.',
+                    'difficulty' => 'Normal',
+                    'category' => 'Legs',
+                ];
+                $templateQuests[] = [
+                    'title' => 'Plank 3 Menit & Leg Raises',
+                    'description' => 'Stabilitas dinding perut dan core strength.',
+                    'difficulty' => 'Easy',
+                    'category' => 'Core',
                 ];
             }
 
-            if (in_array('reading', $growthFocus)) {
+            // Additional custom focus quests
+            if (in_array('nutrition', $fitnessFocus)) {
                 $templateQuests[] = [
-                    'title' => 'Baca 15 Halaman Buku / Jurnal Ilmiah',
-                    'description' => 'Perluas wawasan dan literasi melalui bacaan berkualitas setiap hari.',
+                    'title' => 'Minum 3 Liter Air & Hindari Gula Berlebih',
+                    'description' => 'Hidrasi maksimal untuk performa angkat beban dan metabolisme.',
                     'difficulty' => 'Easy',
-                    'category' => 'Skill',
+                    'category' => 'Nutrition',
                 ];
             }
 
-            if (in_array('mindfulness', $growthFocus)) {
+            if (in_array('cardio', $fitnessFocus)) {
                 $templateQuests[] = [
-                    'title' => 'Refleksi Harian di Jurnal & Rencana Hari Esok',
-                    'description' => 'Tutup hari dengan menulis pencapaian, rasa syukur, dan evaluasi diri.',
-                    'difficulty' => 'Easy',
-                    'category' => 'Planning',
-                ];
-            }
-
-            // If empty (e.g. none selected), provide standard baseline starter
-            if (empty($templateQuests)) {
-                $templateQuests[] = [
-                    'title' => 'Push Up 50x & Stretching Pagi',
-                    'description' => 'Aktivasi tubuh di pagi hari agar berenergi.',
-                    'difficulty' => 'Easy',
-                    'category' => 'Health',
-                ];
-                $templateQuests[] = [
-                    'title' => 'Sesi Fokus 25 Menit Pomodoro',
-                    'description' => 'Fokus penuh pada tugas prioritas hari ini.',
-                    'difficulty' => 'Easy',
-                    'category' => 'Work',
-                ];
-                $templateQuests[] = [
-                    'title' => 'Minum 2L Air & Evaluasi Harian',
-                    'description' => 'Menjaga hidrasi dan kesadaran diri.',
-                    'difficulty' => 'Easy',
-                    'category' => 'Planning',
+                    'title' => 'Kardio / Treadmill Incline 20 Menit',
+                    'description' => 'Pembakaran kalori dan stamina pasca latihan beban.',
+                    'difficulty' => 'Normal',
+                    'category' => 'Cardio',
                 ];
             }
 

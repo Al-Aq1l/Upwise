@@ -46,7 +46,7 @@ export function useGenerateStarterQuests() {
   const userId = user?.id;
 
   return useMutation({
-    mutationFn: async (data: { workout_type: "home" | "gym" | "none"; growth_focus?: string[] }) => {
+    mutationFn: async (data: { workout_type?: string; split_type?: string; fitness_focus?: string[]; growth_focus?: string[] }) => {
       const res = await api.post("/quests/generate-starter", data);
       return res.data;
     },

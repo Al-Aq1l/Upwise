@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import {
   ClipboardList,
-  Timer,
+  Dumbbell,
   Sparkles,
   Flame,
   BarChart3,
@@ -10,6 +10,7 @@ import {
   Zap,
   Info,
   ChevronRight,
+  Layers,
 } from "lucide-react";
 import { useStatistics, useHeatmap, HeatmapItem } from "@/hooks/useStatistics";
 import Metric from "@/components/ui/Metric";
@@ -50,14 +51,9 @@ export default function StatisticsPage() {
     );
   }
 
-  const { summary, stats } = data;
-
-  const formatHoursMinutes = (totalMins: number) => {
-    const h = Math.floor(totalMins / 60);
-    const m = totalMins % 60;
-    if (h === 0) return `${m}m`;
-    return `${h}j ${m}m`;
-  };
+  const { summary, stats } = data as any;
+  const muscleGroups = summary?.muscle_groups || {};
+  const totalMuscleCount = Object.values(muscleGroups).reduce((a: number, b: any) => a + Number(b), 0) as number;
 
   return (
     <div className="statistics-page-container">
@@ -81,36 +77,36 @@ export default function StatisticsPage() {
         </button>
       </div>
 
-      {/* 4 Core Summary Metrics */}
+      {/* 4 Core Gym Summary Metrics */}
       <div className="content-grid statistics-grid">
         <Metric
           icon={ClipboardList}
-          label="Quest Selesai"
+          label="Quest Latihan Selesai"
           value={`${summary.total_quests_completed}`}
           detail={`Periode ${period === "weekly" ? "7 hari" : "30 hari"}`}
         />
         <Metric
-          icon={Timer}
-          label="Fokus Total"
-          value={formatHoursMinutes(summary.total_focus_minutes)}
-          detail={`${summary.total_focus_minutes} menit akumulasi`}
+          icon={Dumbbell}
+          label="Sesi Gym Cleared"
+          value={`${summary.total_workouts || 0} Sesi`}
+          detail="Sesi latihan tuntas"
         />
         <Metric
           icon={Sparkles}
-          label="EXP Didapat"
+          label="EXP Kekuatan"
           value={`+${summary.total_exp}`}
-          detail="Total poin capaian"
+          detail="Total poin progres otot"
         />
         <Metric
           icon={Flame}
-          label="Streak Disiplin"
+          label="Streak Disiplin Gym"
           value={`${summary.current_streak} hari`}
-          detail={`Rekor terpanjang: ${summary.longest_streak} hari`}
+          detail={`Rekor konsistensi: ${summary.longest_streak} hari`}
         />
 
         {/* Daily EXP Chart */}
         <section className="panel span-2 chart-card-panel">
-          <PanelTitle icon={BarChart3} title="Tren EXP Harian" />
+          <PanelTitle icon={BarChart3} title="Tren EXP & Beban Latihan" />
           {stats.length > 0 ? (
             <MiniChart data={stats} metric="exp" unit="EXP" />
           ) : (
@@ -118,14 +114,46 @@ export default function StatisticsPage() {
           )}
         </section>
 
-        {/* Focus & Quest Chart */}
+        {/* Quest Completion Trend Chart */}
         <section className="panel span-2 chart-card-panel">
-          <PanelTitle icon={Target} title="Menit Fokus Harian" />
+          <PanelTitle icon={Target} title="Penyelesaian Quest Latihan (%)" />
           {stats.length > 0 ? (
-            <MiniChart data={stats} metric="focus" unit="menit" />
+            <MiniChart data={stats} metric="quests" unit="%" />
           ) : (
             <p className="muted empty-text">Tidak ada data untuk periode ini.</p>
           )}
+        </section>
+
+        {/* Muscle Groups Breakdown Panel */}
+        <section className="panel span-4 muscle-breakdown-panel">
+          <PanelTitle icon={Layers} title="Distribusi Kelompok Otot Dilatih" />
+          <div className="muscle-bars-grid">
+            {[
+              { key: "Push", label: "Push (Dada, Bahu, Triceps)", color: "cyan" },
+              { key: "Pull", label: "Pull (Punggung, Biceps)", color: "blue" },
+              { key: "Legs", label: "Legs (Paha, Betis, Glutes)", color: "rose" },
+              { key: "Core", label: "Core & Abs (Perut)", color: "amber" },
+              { key: "Cardio", label: "Cardio & Stamina", color: "emerald" },
+              { key: "Nutrition", label: "Recovery & Nutrisi", color: "purple" },
+            ].map((grp) => {
+              const count = Number(muscleGroups[grp.key] || 0);
+              const pct = totalMuscleCount > 0 ? Math.round((count / totalMuscleCount) * 100) : 0;
+              return (
+                <div key={grp.key} className="muscle-bar-item">
+                  <div className="muscle-bar-info">
+                    <span className="muscle-name">{grp.label}</span>
+                    <span className="muscle-count"><strong>{count}</strong> set ({pct}%)</span>
+                  </div>
+                  <div className="muscle-track">
+                    <div
+                      className={`muscle-fill fill-${grp.color}`}
+                      style={{ width: `${Math.max(4, pct)}%` }}
+                    />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </section>
 
         {/* Full Year 365-Day Activity Heatmap */}

@@ -20,7 +20,7 @@ import PanelTitle from "@/components/ui/PanelTitle";
 import Metric from "@/components/ui/Metric";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 
-type FilterTab = "all" | "focus" | "quest" | "dungeon" | "journal";
+type FilterTab = "all" | "dungeon" | "quest";
 
 export default function HistoryPage() {
   const { data, isLoading } = useHistory();
@@ -205,43 +205,33 @@ export default function HistoryPage() {
   return (
     <div className="history-page-container">
       {/* Top Metric Strip */}
-      <div className="content-grid four-col history-metrics-grid">
+      <div className="content-grid two-col history-metrics-grid">
         <Metric
-          icon={Timer}
-          label="Total Fokus"
-          value={formatHoursMinutes(summary.total_focus_minutes)}
-          detail={`${summary.total_focus_minutes} menit akumulasi`}
+          icon={Swords}
+          label="Sesi Gym Cleared"
+          value={`${summary.total_dungeon_clears}`}
+          detail="Sesi latihan harian tuntas"
+          variant="amber"
         />
         <Metric
           icon={ClipboardList}
-          label="Quest Tuntas"
+          label="Quest Latihan Tuntas"
           value={`${summary.total_completed_quests}`}
-          detail="Target berhasil ditaklukkan"
-        />
-        <Metric
-          icon={Swords}
-          label="Dungeon Cleared"
-          value={`${summary.total_dungeon_clears}`}
-          detail="Sesi harian terselesaikan"
-        />
-        <Metric
-          icon={BookOpenText}
-          label="Catatan Jurnal"
-          value={`${summary.total_journals}`}
-          detail="Refleksi pertumbuhan diri"
+          detail="Latihan berhasil ditaklukkan"
+          variant="cyan"
         />
       </div>
 
       {/* Main Panel: Filter Controls & History List */}
       <section className="panel history-main-panel">
         <div className="history-header-row">
-          <PanelTitle icon={History} title="Arsip & Log Aktivitas Lengkap" />
+          <PanelTitle icon={History} title="Log Riwayat Latihan Gym" />
           
           <div className="history-search-box">
             <Search size={16} className="text-muted" />
             <input
               type="text"
-              placeholder="Cari aktivitas, judul quest, atau catatan..."
+              placeholder="Cari aktivitas, gerakan gym, atau catatan..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -255,23 +245,7 @@ export default function HistoryPage() {
             className={`history-chip ${activeTab === "all" ? "active" : ""}`}
             onClick={() => setActiveTab("all")}
           >
-            <span>Semua Aktivitas ({unifiedTimeline.length})</span>
-          </button>
-          <button
-            type="button"
-            className={`history-chip ${activeTab === "focus" ? "active" : ""}`}
-            onClick={() => setActiveTab("focus")}
-          >
-            <Timer size={14} />
-            <span>Fokus ({data?.focus_sessions.length || 0})</span>
-          </button>
-          <button
-            type="button"
-            className={`history-chip ${activeTab === "quest" ? "active" : ""}`}
-            onClick={() => setActiveTab("quest")}
-          >
-            <CheckCircle2 size={14} />
-            <span>Quest ({data?.quests.length || 0})</span>
+            <span>Semua Riwayat Gym ({filteredItems.length})</span>
           </button>
           <button
             type="button"
@@ -279,15 +253,15 @@ export default function HistoryPage() {
             onClick={() => setActiveTab("dungeon")}
           >
             <Swords size={14} />
-            <span>Dungeon ({data?.dungeon_sessions.length || 0})</span>
+            <span>Sesi Latihan ({data?.dungeon_sessions.length || 0})</span>
           </button>
           <button
             type="button"
-            className={`history-chip ${activeTab === "journal" ? "active" : ""}`}
-            onClick={() => setActiveTab("journal")}
+            className={`history-chip ${activeTab === "quest" ? "active" : ""}`}
+            onClick={() => setActiveTab("quest")}
           >
-            <BookOpenText size={14} />
-            <span>Jurnal ({data?.journals.length || 0})</span>
+            <CheckCircle2 size={14} />
+            <span>Quest Latihan ({data?.quests.length || 0})</span>
           </button>
         </div>
 

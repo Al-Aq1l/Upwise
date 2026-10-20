@@ -1,5 +1,5 @@
 import { useNavigate, useLocation } from "react-router-dom";
-import { CircleGauge, ClipboardList, Timer, BarChart3, LayoutGrid } from "lucide-react";
+import { CircleGauge, CalendarDays, Dumbbell, BarChart3, LayoutGrid } from "lucide-react";
 import { useMobileMenuStore } from "@/lib/mobileMenu";
 
 export default function BottomNavigation() {
@@ -9,9 +9,9 @@ export default function BottomNavigation() {
 
   const navItems = [
     { path: "/", label: "Home", icon: CircleGauge },
-    { path: "/daily-quest", label: "Quests", icon: ClipboardList },
-    { path: "/focus-session", label: "Focus", icon: Timer },
-    { path: "/statistics", label: "Stats", icon: BarChart3 },
+    { path: "/schedule", label: "Jadwal", icon: CalendarDays },
+    { path: "/daily-quest", label: "Quests", icon: Dumbbell },
+    { path: "/statistics", label: "Progres", icon: BarChart3 },
   ];
 
   const isMenuSection =
@@ -19,7 +19,6 @@ export default function BottomNavigation() {
     [
       "/achievements",
       "/history",
-      "/adventure-journal",
       "/settings",
       "/enter-dungeon",
       "/exit-dungeon",

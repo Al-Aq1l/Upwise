@@ -2,8 +2,8 @@ import { useLocation, useNavigate } from "react-router-dom";
 import {
   CircleGauge,
   ClipboardList,
-  Timer,
-  BookOpenText,
+  CalendarDays,
+  Dumbbell,
   BarChart3,
   Trophy,
   Settings,
@@ -28,20 +28,19 @@ type NavGroup = {
 
 const navGroups: NavGroup[] = [
   {
-    label: "Aktivitas",
+    label: "Latihan & Jadwal",
     items: [
       { path: "/", label: "Dashboard", icon: CircleGauge },
-      { path: "/daily-quest", label: "Daily Quest", icon: ClipboardList },
-      { path: "/focus-session", label: "Focus Session", icon: Timer },
-      { path: "/adventure-journal", label: "Adventure Journal", icon: BookOpenText },
+      { path: "/schedule", label: "Jadwal Latihan", icon: CalendarDays },
+      { path: "/daily-quest", label: "Daily Workout Quest", icon: Dumbbell },
     ],
   },
   {
-    label: "Progres",
+    label: "Progres Gym",
     items: [
-      { path: "/statistics", label: "Statistics", icon: BarChart3 },
-      { path: "/achievements", label: "Achievement", icon: Trophy },
-      { path: "/history", label: "Riwayat Aktivitas", icon: History },
+      { path: "/statistics", label: "Statistik & Progres", icon: BarChart3 },
+      { path: "/achievements", label: "Achievements & Gelar", icon: Trophy },
+      { path: "/history", label: "Riwayat Latihan", icon: History },
     ],
   },
   {
@@ -69,7 +68,7 @@ export default function Sidebar() {
         </div>
         <div className="brand-text">
           <strong>Upwise</strong>
-          <span>Personal Growth OS</span>
+          <span>Gym & Workout System</span>
         </div>
       </div>
 
@@ -79,7 +78,7 @@ export default function Sidebar() {
           <div className="dungeon-card-badge">
             <span className={`pulse-dot dot-${status}`} />
             <span className="dungeon-card-tag">
-              {status === "active" ? "IN DUNGEON" : status === "completed" ? "CLEARED" : "STANDBY"}
+              {status === "active" ? "IN GYM" : status === "completed" ? "CLEARED" : "STANDBY"}
             </span>
           </div>
           <Sparkles size={14} className="dungeon-card-sparkle" />
@@ -88,17 +87,17 @@ export default function Sidebar() {
         <div className="dungeon-card-body">
           <p className="dungeon-card-title">
             {status === "active"
-              ? "Dungeon Aktif"
+              ? "Sesi Gym Aktif"
               : status === "completed"
-              ? "Dungeon Selesai"
-              : "Dungeon Gate"}
+              ? "Sesi Gym Selesai"
+              : "Gym Workout Gate"}
           </p>
           <span className="dungeon-card-subtitle">
             {status === "active"
-              ? "Catat fokus & selesaikan quest"
+              ? "Lakukan set latihan & catat quest"
               : status === "completed"
-              ? "Reward harian sudah diklaim"
-              : "Mulai sesi hari ini untuk EXP"}
+              ? "Target latihan hari ini beres!"
+              : "Mulai sesi latihan hari ini"}
           </span>
         </div>
 
@@ -108,7 +107,7 @@ export default function Sidebar() {
             onClick={() => navigate("/enter-dungeon")}
           >
             <Swords size={15} />
-            <span>Enter Dungeon</span>
+            <span>Mulai Sesi Gym</span>
           </button>
         )}
 
@@ -118,14 +117,14 @@ export default function Sidebar() {
             onClick={() => navigate("/exit-dungeon")}
           >
             <LogOut size={15} />
-            <span>Exit & Tutup Hari</span>
+            <span>Selesai Latihan</span>
           </button>
         )}
 
         {status === "completed" && (
           <div className="sidebar-dungeon-completed">
             <CheckCircle2 size={16} className="text-emerald" />
-            <span>Hari ini selesai</span>
+            <span>Latihan Berhasil Ditutup</span>
           </div>
         )}
       </div>

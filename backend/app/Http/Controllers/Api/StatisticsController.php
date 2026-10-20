@@ -54,13 +54,18 @@ class StatisticsController extends Controller
 
         $profile = $user->hunterProfile;
 
-        // Summary metrics
-        $totalExpPeriod = array_sum(array_column($stats, 'exp'));
-        $totalQuestsCompleted = array_sum(array_column($stats, 'quests_completed'));
-        $totalFocusMinutes = array_sum(array_column($stats, 'focus'));
-        $avgProductivity = count(array_filter(array_column($stats, 'productivity'))) > 0
-            ? round(array_sum(array_column($stats, 'productivity')) / count(array_filter(array_column($stats, 'productivity'))), 1)
-            : 0;
+        $totalWorkouts = $user->dungeonSessions()
+            ->where('status', 'completed')
+            ->where('date', '>=', $startDate)
+            ->count();
+
+        $categoryBreakdown = $user->quests()
+            ->where('completed', true)
+            ->where('date', '>=', $startDate)
+            ->selectRaw('category, count(*) as count')
+            ->groupBy('category')
+            ->pluck('count', 'category')
+            ->toArray();
 
         return response()->json([
             'period' => $period,
@@ -69,10 +74,12 @@ class StatisticsController extends Controller
                 'total_exp' => $totalExpPeriod,
                 'total_quests_completed' => $totalQuestsCompleted,
                 'total_focus_minutes' => $totalFocusMinutes,
+                'total_workouts' => $totalWorkouts,
                 'avg_productivity' => $avgProductivity,
                 'current_streak' => $profile->streak,
                 'longest_streak' => $profile->longest_streak,
                 'level_progress' => $this->gamification->levelProgress($profile->exp),
+                'muscle_groups' => $categoryBreakdown,
             ],
         ]);
     }

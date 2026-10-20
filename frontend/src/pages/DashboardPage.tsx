@@ -3,7 +3,7 @@ import {
   Sparkles,
   Flame,
   Swords,
-  Timer,
+  Dumbbell,
   ClipboardList,
   BarChart3,
   CalendarDays,
@@ -13,6 +13,7 @@ import {
   Zap,
   ChevronRight,
   CheckCircle2,
+  ArrowRight,
 } from "lucide-react";
 import { useDashboard } from "@/hooks/useDashboard";
 import { useDungeonToday } from "@/hooks/useDungeon";
@@ -42,11 +43,11 @@ export default function DashboardPage() {
     profile,
     level_progress,
     quests,
-    focus,
+    workout,
     weekly_stats,
     heatmap,
     recent_achievement,
-  } = data;
+  } = data as any;
 
   // Unify dungeon status: if either hook reports completed, today is completed!
   const effectiveStatus =
@@ -56,20 +57,20 @@ export default function DashboardPage() {
 
   const statusConfig = {
     "not-started": {
-      label: "Belum Check-in",
-      subtext: "Gate belum dimasuki hari ini. Mulai sesi dungeon untuk mencatat fokus dan quest!",
+      label: "Gym Gate: Belum Latihan",
+      subtext: "Gate latihan belum dimasuki hari ini. Masuk ke gate dan selesaikan workout quest!",
       badge: "STANDBY",
       statusClass: "status-standby",
     },
     active: {
-      label: "Sedang di Dungeon",
-      subtext: "Dungeon aktif! Selesaikan daily quest dan sesi fokus untuk mengumpulkan EXP.",
-      badge: "IN DUNGEON",
+      label: "Sesi Gym Aktif",
+      subtext: "Latihan sedang berjalan! Selesaikan repetisi & set latihan untuk mengumpulkan EXP.",
+      badge: "IN GYM",
       statusClass: "status-active",
     },
     completed: {
-      label: "Dungeon Selesai",
-      subtext: "Daily dungeon telah selesai. Kerja bagus untuk aktivitas hari ini!",
+      label: "Sesi Gym Cleared",
+      subtext: "Latihan hari ini tuntas! Reward EXP telah diklaim dan ototmu siap beregenerasi.",
       badge: "CLEARED",
       statusClass: "status-completed",
     },
@@ -188,7 +189,7 @@ export default function DashboardPage() {
                 }
               >
                 <Swords size={18} />
-                <span>{effectiveStatus === "active" ? "Exit Dungeon" : "Enter Dungeon"}</span>
+                <span>{effectiveStatus === "active" ? "Selesai Latihan" : "Mulai Sesi Gym"}</span>
               </button>
             ) : (
               <button
@@ -196,21 +197,28 @@ export default function DashboardPage() {
                 onClick={() => navigate("/statistics")}
               >
                 <CheckCircle2 size={18} className="text-emerald" />
-                <span>Dungeon Cleared</span>
+                <span>Latihan Cleared</span>
               </button>
             )}
+            <button
+              className="hunter-action-btn secondary-btn-glass"
+              onClick={() => navigate("/schedule")}
+            >
+              <CalendarDays size={18} />
+              <span>Jadwal Latihan</span>
+            </button>
             <button
               className="hunter-action-btn secondary-btn-glass"
               onClick={() => navigate("/daily-quest")}
             >
               <Target size={18} />
-              <span>Kelola Quest</span>
+              <span>Daily Quest</span>
             </button>
           </div>
         </div>
       </section>
 
-      {/* 4 Metrics arranged in a responsive 2x2 on mobile, 4-col on desktop */}
+      {/* 4 Gym Metrics */}
       <div className="dashboard-metrics-grid span-4">
         <Metric
           icon={Sparkles}
@@ -221,23 +229,23 @@ export default function DashboardPage() {
         />
         <Metric
           icon={Flame}
-          label="Current Streak"
+          label="Gym Streak"
           value={`${profile.streak} hari`}
-          detail={`Terpanjang ${profile.longest_streak} hari`}
+          detail={`Terpanjang ${profile.longest_streak} hari konsisten`}
           variant="amber"
         />
         <Metric
           icon={Swords}
           label="Battle Power"
           value={profile.battle_power.toLocaleString("id-ID")}
-          detail="Level + streak + fokus + quest"
+          detail="Rating kekuatan angkat beban"
           variant="rose"
         />
         <Metric
-          icon={Timer}
-          label="Focus"
-          value={`${focus.total_minutes} menit`}
-          detail={`${focus.session_count} sesi tercatat`}
+          icon={Dumbbell}
+          label="Sesi Gym"
+          value={`${workout?.total_sessions || 0} Sesi`}
+          detail={effectiveStatus === "completed" ? "Hari ini cleared" : "Total sesi latihan selesai"}
           variant="purple"
         />
       </div>

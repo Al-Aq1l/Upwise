@@ -10,10 +10,9 @@ import LoadingSpinner from "./components/ui/LoadingSpinner";
 // Lazy-loaded pages
 const LoginPage = lazy(() => import("./pages/LoginPage"));
 const DashboardPage = lazy(() => import("./pages/DashboardPage"));
+const WorkoutSchedulePage = lazy(() => import("./pages/WorkoutSchedulePage"));
 const EnterDungeonPage = lazy(() => import("./pages/EnterDungeonPage"));
 const DailyQuestPage = lazy(() => import("./pages/DailyQuestPage"));
-const FocusSessionPage = lazy(() => import("./pages/FocusSessionPage"));
-const JournalPage = lazy(() => import("./pages/JournalPage"));
 const ExitDungeonPage = lazy(() => import("./pages/ExitDungeonPage"));
 const StatisticsPage = lazy(() => import("./pages/StatisticsPage"));
 const AchievementsPage = lazy(() => import("./pages/AchievementsPage"));
@@ -95,15 +94,17 @@ function App() {
             }
           >
             <Route index element={<Suspense fallback={<LoadingSpinner />}><DashboardPage /></Suspense>} />
-            <Route path="enter-dungeon" element={<Suspense fallback={<LoadingSpinner />}><EnterDungeonPage /></Suspense>} />
+            <Route path="schedule" element={<Suspense fallback={<LoadingSpinner />}><WorkoutSchedulePage /></Suspense>} />
             <Route path="daily-quest" element={<Suspense fallback={<LoadingSpinner />}><DailyQuestPage /></Suspense>} />
-            <Route path="focus-session" element={<Suspense fallback={<LoadingSpinner />}><FocusSessionPage /></Suspense>} />
-            <Route path="adventure-journal" element={<Suspense fallback={<LoadingSpinner />}><JournalPage /></Suspense>} />
+            <Route path="enter-dungeon" element={<Suspense fallback={<LoadingSpinner />}><EnterDungeonPage /></Suspense>} />
             <Route path="exit-dungeon" element={<Suspense fallback={<LoadingSpinner />}><ExitDungeonPage /></Suspense>} />
             <Route path="statistics" element={<Suspense fallback={<LoadingSpinner />}><StatisticsPage /></Suspense>} />
             <Route path="achievements" element={<Suspense fallback={<LoadingSpinner />}><AchievementsPage /></Suspense>} />
             <Route path="history" element={<Suspense fallback={<LoadingSpinner />}><HistoryPage /></Suspense>} />
             <Route path="settings" element={<Suspense fallback={<LoadingSpinner />}><SettingsPage /></Suspense>} />
+            {/* Fallbacks for removed non-gym routes */}
+            <Route path="focus-session" element={<Navigate to="/schedule" replace />} />
+            <Route path="adventure-journal" element={<Navigate to="/daily-quest" replace />} />
           </Route>
 
           {/* Fallback Catch-All */}

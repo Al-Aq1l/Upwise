@@ -138,6 +138,11 @@ class DashboardController extends Controller
                 'total_minutes' => $todayFocus,
                 'session_count' => $todayFocusCount,
             ],
+            'workout' => [
+                'total_sessions' => $user->dungeonSessions()->where('status', 'completed')->count(),
+                'status' => $dungeonStatus,
+                'completed_today' => $dungeonStatus === 'completed',
+            ],
             'weekly_stats' => $weeklyStats,
             'heatmap' => $heatmapData,
             'recent_achievement' => $recentAchievement ? [

@@ -1,0 +1,22 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "model": "router9/kairi",
+  "providers": {
+    "router9": {
+      "name": "9router Local",
+      "package": "@opencode/ai/providers/openai-compatible",
+      "settings": {
+        "baseURL": "http://localhost:20128/v1"
+      },
+      "headers": {
+        "Authorization": "Bearer sk-b2437bfffff71229-ej50g3-73156943"
+      },
+      "models": {
+        "kairi": {
+          "name": "Combo Kairi",
+          "modelID": "kairi"
+        }
+      }
+    }
+  }
+}
